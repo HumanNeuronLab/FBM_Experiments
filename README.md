@@ -6,8 +6,7 @@ Lora Fanda
 lorafanda7@gmail.com
 
 — — — — — 
-How to run the experiment: 
-— — — — — 
+## How to run the experiment: 
 0. Connect the photodiode to the acquisition system and attach it to the top left corner of the experiment laptop
 1. Double click the respective executable file (for Category localised = CL_….exe, for Functional Mapping = LM_….exe)
 2. A command window should appear and the experiment should begin after a few seconds
@@ -16,15 +15,13 @@ How to run the experiment:
 5. Once completed, double check the behavioural file under the Results folder. 
 
 — — — — —
-How to add your own stimuli:
-— — — — —
+## How to add your own stimuli:
 - As long as the file format and folder organization stays the same, you can change the stimuli inside the experimental stimuli folders as you wish. This will not cause any differences in stimuli duration or presentation. 
 For example: if you would like to upload a German version of the audio file named “06_CHAT.wav”, you can create the stimuli as a wav file, and when you save it, keep the formatting like so: “06_ KATZE.wav”. 
 Keep in mind: Only .wav .txt .png file types are accepted for stimuli.
 
 — — — — —
-Folder Organisation:
-— — — — — 
+# Folder Organisation:
 The HNL_Experiment_Sharing folder is organised in 4 types of files/folders groups:
 
 ## Functional Mapping folders:
