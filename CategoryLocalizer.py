@@ -12,13 +12,11 @@ from psychopy import gui
 from psychopy import sound
 import os.path
 import glob
-import serial
 import time
+import serial
 from pyo import *
 
-###   Detials
-
-
+###   Detials CHANGE TEXT FILE NAMES
 # Define the hardcoded values
 psychopy.prefs.hardware['audioLib'] = ['PTB', 'sounddevice','pyo','pygame']
 Center = [0,0]
@@ -47,7 +45,8 @@ print('¦............ Number of Images:  ', np.size(image_list),'\n')
 
 
 # function ONETRIAL
-def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=False,isRepeatImage=False, timeOfRepeat = 0):
+def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=False,isRepeatImage=False, timeOfRepeat = 0,start_tic=0):
+
     circle = visual.Circle(
         pos= [-900,480],
         win=mywin,
@@ -65,6 +64,7 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         fillColor=[0, 0, 0],
         lineColor=[0, 0, 0]
     )    
+    
     quitnow=False
     tic=time.time()
     # event.clearEvents(eventType=None)
@@ -75,7 +75,7 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
     # 0: Define time durations base, cue and response
     np.random.shuffle(Timing[0])
     BaseTime= Timing[0][0]
-    CueTime=Timing[1][0]
+    CueTime=Timing[1][0] # Cue is always only the first value
     ResponseTime=Timing[2][0]
     
     ## 1: BASELINE
@@ -88,12 +88,13 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
 
     ## 2: CUE
     tic=time.time()
+    onset_tic = tic - start_tic
     if isImage: # if image
         StimVisual=visual.SimpleImageStim(win=mywin,image=Stim)
         StimVisual.draw()
         circle.draw()
         mywin.flip()
-        core.wait(0.05)
+        core.wait(0.02)
         StimVisual.draw()
         circle_gray.draw()
         mywin.flip()
@@ -108,7 +109,7 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         if WithTriggers == 'Yes':
             port.write(b'a')
     else:
-        timeOfRepeat = time.time()
+        timeOfRepeat = 0
 
     el2=time.time()-tic
     core.wait(CueTime-el2)
@@ -119,29 +120,47 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
     ## 3: RESPONSE
     tic=time.time()
     mywin.flip()
-    if WithTriggers == 'Yes': port.write(b'1')
     if len(event.getKeys(keyList='q'))>0:
         quitnow = True
 
     
     # Save to txt file
     if len(event.getKeys(keyList='space'))>0:
+        if WithTriggers == 'Yes': port.write(b'v') 
         duration = time.time()-tic
         ReactionTime = time.time()
         sample_offset=str(time.time()+duration)
-        if WithTriggers == 'Yes':
-            port.write(b'b')
+        # if WithTriggers == 'Yes':
+            # port.write(b'b')
 
     if (ReactionTime == 0 and timeOfRepeat == 0) or (ReactionTime != 0 and timeOfRepeat != 0):
         ValidTrial=1
+
+    if timeOfRepeat !=0:
+        trial_type="go"
+        if ReactionTime == 0:
+            response_type = "miss"
+        else: 
+            response_type = "hit"
+    else:
+        trial_type="no_go"
+        if ReactionTime == 0:
+            response_type="correct_rejection"
+        else: 
+            response_type = "false_alarm"
+
+
     Resp=[ValidTrial,ReactionTime]
     with open(FileName,"a") as FileData:
         ####################change on#####################################
+        # 'onset,duration,trial_type,category,exemplar,response_type,response_time'
+        txt=[str(onset_tic),str(duration)[0:7],trial_type,BlockName,StimNumber,response_type,str(Resp[1])]
+        # CategoryLocalizer,63,word,1664293981.9973466,0,0
         # txt=[str(BlockName),StimNumber,StimName,str(timeOfRepeat),str(Resp[0]),str(Resp[1])]
-        txt=[str(timeOfRepeat),str(duration)[0:7],TrialNumber,sample_offset,StimName,BlockName,StimNumber,str(Resp[0]),str(Resp[1])]
+        # txt=[str(timeOfRepeat),str(duration)[0:7],TrialNumber,sample_offset,StimName,BlockName,StimNumber,str(Resp[0]),str(Resp[1])]
         #####################change off ####################################
         txt=[str(t) for t in txt]
-        FileData.write(",".join(txt))
+        FileData.write("\t".join(txt))
         FileData.write('\n')
 
     return quitnow, timeOfRepeat, ReactionTime
@@ -152,10 +171,10 @@ while True:
     DlgInit.addField("Subject ID:")
     DlgInit.addField("Volume (0-1): ",1)
     DlgInit.addField("PORT (COM): ",'COM3')
-    DlgInit.addField("Use serial triggers?: ",choices=["No","Yes"])
+    DlgInit.addField("Use serial triggers?: ",choices= ["No","Yes"])
     DlgInit.show()
     InitialData = DlgInit.data
-    if DlgInit.OK: #InitialData==['', 1,'COM3','No']:# Cancel if press
+    if DlgInit.OK: # InitialData==['', '', 'M', 'R', 1,'COM9','No']:# Cancel if press
         SbjNumber=InitialData[0]
         Volume=InitialData[1]
         PortName=InitialData[2]
@@ -172,14 +191,14 @@ while True:
                     FileData.write('sub- : '+SbjNumber+'\n')
                     FileData.write('task- : LocalizerAud165\n')
                     # txt=[str(BlockName),StimNumber,StimName,str(timeOfRepeat),str(Resp[0]),str(Resp[1])]
-                    FileData.write('onset,duration,sample,sample_offset,trial_type,category,exemplar,response_type,response_time')
+                    FileData.write('onset\tduration\ttrial_type\tcategory\texemplar\tresponse_type\tresponse_time')
                     FileData.write('\n')
                 break
         else:
             with open(FileName,'w') as FileData:
                 FileData.write('SubjectNumber : '+SbjNumber+'\n')
                 ######################change on #################################
-                FileData.write('onset,duration,sample,sample_offset,trial_type,category,exemplar,response_type,response_time')
+                FileData.write('onset\tduration\ttrial_type\tcategory\texemplar\tresponse_type\tresponse_time')
                 ######################change off#################################
                 FileData.write('\n')
             break
@@ -201,7 +220,7 @@ if Exp:
     # 1. INTRODUCTION
     Exit=False
     IntroText=visual.TextStim(win=mywin,text="",color='black')
-    IntroText.setText(text='Category Localizer:\n\n Press SPACE BAR when you see a repeating image. \n\nPress q to quit')
+    IntroText.setText(text='Category Localizer Visual:\n\n Press SPACE BAR when you see a repeating image. \n\nPress q to quit')
     IntroText.draw()
     mywin.flip()
     #Press SPACE key to continue
@@ -234,15 +253,17 @@ if Exp:
     onset=time.time()
     timeOfRepeat=0
     ReactTime=0
+    start_tic=time.time()
+
     for i,s in enumerate(image_list):
         if Exit or len(event.getKeys(keyList='q'))>0: break
         print('\nTrial '+str(i+1)+'¦ ')
-        Exit,timeOfRepeat, ReactTime=onetrial(mywin,s,fix,Timing,FileName,i+1,0,isImage=True, isRepeatImage=repeatIndex[i],timeOfRepeat=timeOfRepeat)
+        Exit,timeOfRepeat, ReactTime=onetrial(mywin,s,fix,Timing,FileName,i+1,0,isImage=False, isRepeatImage=repeatIndex[i],timeOfRepeat=timeOfRepeat,start_tic=start_tic)
         print(timeOfRepeat,ReactTime)
         # Exit=onetrial(mywin,s,fix,Timing,FileName,i+1,0,isImage=True,save=False)
 
     # 3. END OF TASK
-    ResponseText=visual.TextStim(win=mywin,text="",color='black',height=30)
+    ResponseText=visual.TextStim(win=mywin,text="",color='black',height=20)
     ResponseText.setText(text='Congrats! \nYou are done!\n\nPress SPACE BAR to end the experiment \n\nData saved as: \n...'+ FileName[-50:-1])
     ResponseText.draw()     
     mywin.flip()       
