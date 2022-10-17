@@ -154,19 +154,18 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
     ## 3: RESPONSE
     tic=time.time()
     mywin.flip()
-
     if len(event.getKeys(keyList='q'))>0:
         quitnow = True
 
 
     # Save to txt file
     if len(event.getKeys(keyList='space'))>0:
+        if WithTriggers == 'Yes': port.write(b'v') 
         duration = time.time()-tic
         ReactionTime = time.time()
         sample_offset=str(time.time()+duration)
-        if WithTriggers == 'Yes':
-            port.write(b'b')
-            port.write(b'b')
+        # if WithTriggers == 'Yes':
+            #port.write(b'b')
 
     if (ReactionTime == 0 and timeOfRepeat == 0) or (ReactionTime != 0 and timeOfRepeat != 0):
         ValidTrial=1

@@ -12,8 +12,8 @@ from psychopy import gui
 from psychopy import sound
 import os.path
 import glob
-import serial
 import time
+import serial
 from pyo import *
 
 ###   Detials
@@ -85,7 +85,7 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
     # 0: Define time durations base, cue and response
     np.random.shuffle(Timing[0])
     BaseTime= Timing[0][0]
-    CueTime=Timing[1][0]
+    CueTime=Timing[1][0] # Cue is always only the first value
     ResponseTime=Timing[2][0]
     
     ## 1: BASELINE
@@ -98,17 +98,17 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
 
     ## 2: CUE
     tic=time.time()
-
+    onset_tic = tic - start_tic
     if isImage: # if image
         StimVisual=visual.SimpleImageStim(win=mywin,image=Stim)
         StimVisual.draw()
         circle.draw()
         mywin.flip()
-        core.wait(0.05)
+        core.wait(0.01)
         StimVisual.draw()
         circle_gray.draw()
         mywin.flip()
-        # core. wait()
+        # core.wait()
         if WithTriggers == 'Yes':
             port.write(b'v')
         if WithTriggers == 'Yes': port.write(b'a')
@@ -135,7 +135,7 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         mywin.flip()
         if WithTriggers == 'Yes': port.write(b'b')
         Sound.play()
-        core.wait(Sound.getDuration()+1)     
+        core.wait(Sound.getDuration()+1)  # TODO why plus one   
     el2=time.time()-tic
     core.wait(CueTime-el2)
     duration = time.time()-tic
@@ -166,44 +166,55 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
     
 
     while True:
+
         if len(event.getKeys(keyList='space'))>0:
             if WithTriggers == 'Yes': port.write(b'v') 
-            ReactionTime=time.time()-tic
+            trial_type="go"
+            response_type="correct"
+            duration = time.time()-tic
+            ReactionTime = time.time()
             ValidTrial = 1
             break        
         if len(event.getKeys(keyList='x'))>0:
+            trial_type="no-go"
+            response_type="wrong"
+            duration = time.time()-tic
+            ReactionTime = time.time()
             if WithTriggers == 'Yes': port.write(b'x')
-            ReactionTime = time.time()-tic
             ValidTrial = 0 
             break
         if len(event.getKeys(keyList='n'))>0:
+            trial_type="no-go"
+            response_type="wrong"
             ReactionTime = 0
+            duration = 0
             ValidTrial = 0 
+
             quitnow=True
             break
         if len(event.getKeys(keyList='q'))>0:
             Exp=False
             break
-    # circle = visual.Circle(
-    #     pos= [900,-500],
-    #     win=mywin,
-    #     units="pix",
-    #     radius=200,
-    #     fillColor=[0,0,0],
-    #     lineColor=[0,0,0]
-    # )
-    # circle.draw()
-    print('¦--- response duration: '+  str(time.time()-tic)[0:7])
-    # Get response time
+        
+        duration = time.time()-tic
+        ReactionTime = time.time()
+        sample_offset=str(time.time()+duration)
+        if WithTriggers == 'Yes':
+            port.write(b'b')
+
+
     Resp=[ValidTrial,ReactionTime]
     print('¦----- ReactionTime: '+str(ReactionTime)[0:7])
 
     with open(FileName,"a") as FileData:
         ####################change on#####################################
-        txt=[str(TrialNumber),str(BlockNumber),str(BlockName),StimNumber,StimName,str(Resp[0]),str(Resp[1]) ]
+        # 'onset,duration,trial_type,category,exemplar,response_type,response_time'
+        txt=[str(onset_tic),str(duration)[0:7],trial_type,BlockName,StimNumber,response_type,str(Resp[1])]
+        # CategoryLocalizer,63,word,1664293981.9973466,0,0
+        # txt=[str(BlockName),StimNumber,StimName,str(timeOfRepeat),str(Resp[0]),str(Resp[1])]
         #####################change off ####################################
         txt=[str(t) for t in txt]
-        FileData.write(",".join(txt))
+        FileData.write("\t".join(txt))
         FileData.write('\n')
 
     return quitnow
@@ -212,25 +223,17 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
 while True:
     DlgInit = gui.Dlg(title="Functional Language Mapping Initialisation")
     DlgInit.addField("Subject ID:")
-    DlgInit.addField("Age:")
-    DlgInit.addField('Sex:', choices=["M", "F"])
-    DlgInit.addField('handedness:', choices=["R", "L"])
     DlgInit.addField("Volume (0-1): ",1)
-    DlgInit.addField('COM port','COM9')
-    DlgInit.addField('With triggers?',choices=['No','Yes'])
+    DlgInit.addField("PORT (COM): ",'COM3')
+    DlgInit.addField("Use serial triggers?: ",choices= ["No","Yes"])
     DlgInit.show()
     InitialData = DlgInit.data
     if DlgInit.OK: # InitialData==['', '', 'M', 'R', 1,'COM9','No']:# Cancel if press
-        # Exp=False
-        # break
         SbjNumber=InitialData[0]
-        Age=InitialData[1]
-        Sex=InitialData[2]
-        Handedness=InitialData[3]
-        Volume=InitialData[4]
-        com_port = InitialData[5]
-        WithTriggers = InitialData[6]
-        FileName=SbjNumber+'_FLM_'+now+'.txt'
+        Volume=InitialData[1]
+        PortName=InitialData[2]
+        WithTriggers=InitialData[3]
+        FileName='sub-'+SbjNumber+'_task-LocalizerAud165_events.tsv'
         FileName=os.path.join(Respath,FileName)
         print(FileName)
         if os.path.isfile(FileName):
@@ -239,240 +242,215 @@ while True:
             if Resp == 5103:
                 with open(FileName,'w') as FileData:
                     FileData.write('\n')
-                    FileData.write('SubjectNumber : '+SbjNumber+'\n')
-                    FileData.write('Sex : '+Sex+'\n')
-                    FileData.write('Age : '+Age+'\n')
-                    FileData.write('Handedness : '+Handedness+'\n')
-                    FileData.write('TrialNumber,BlockNumber,BlockName,StimNumber,StimName,ResponseAccuracy,ResponseTime')
+                    FileData.write('sub- : '+SbjNumber+'\n')
+                    FileData.write('task- : LocalizerAud165\n')
+                    # txt=[str(BlockName),StimNumber,StimName,str(timeOfRepeat),str(Resp[0]),str(Resp[1])]
+                    FileData.write('onset\tduration\ttrial_type\tcategory\texemplar\tresponse_type\tresponse_time')
                     FileData.write('\n')
                 break
         else:
             with open(FileName,'w') as FileData:
                 FileData.write('SubjectNumber : '+SbjNumber+'\n')
-                FileData.write('Sex : '+Sex+'\n')
-                FileData.write('Age : '+Age+'\n')
-                FileData.write('Handedness : '+Handedness+'\n')
                 ######################change on #################################
-                FileData.write('TrialNumber,BlockNumber,BlockName,StimNumber,StimName,ResponseAccuracy,ResponseTime')
+                FileData.write('onset\tduration\ttrial_type\tcategory\texemplar\tresponse_type\tresponse_time')
                 ######################change off#################################
                 FileData.write('\n')
             break
     else:
         Exp=False
         break
-        # SbjNumber=InitialData[0]
-        # Age=InitialData[1]
-        # Sex=InitialData[2]
-        # Handedness=InitialData[3]
-        # Volume=InitialData[4]
-        # com_port = InitialData[5]
-        # WithTriggers = InitialData[6]
-        # FileName=SbjNumber+'_FLM_'+now+'.txt'
-        # FileName=os.path.join(Respath,FileName)
-        # print(FileName)
-        # if os.path.isfile(FileName):
-        #     DlgFile = gui.wx.MessageDialog(None,"File exist. Do you want to continue or define other parameters(yes) or overwrite file(no)",style=gui.wx.YES|gui.wx.NO|gui.wx.ICON_QUESTION)
-        #     Resp=DlgFile.ShowModal()
-        #     if Resp == 5103:
-        #         with open(FileName,'w') as FileData:
-        #             FileData.write('\n')
-        #             FileData.write('SubjectNumber : '+SbjNumber+'\n')
-        #             FileData.write('Sex : '+Sex+'\n')
-        #             FileData.write('Age : '+Age+'\n')
-        #             FileData.write('Handedness : '+Handedness+'\n')
-        #             FileData.write('TrialNumber,BlockNumber,BlockName,StimNumber,StimName,ResponseAccuracy,ResponseTime')
-        #             FileData.write('\n')
-        #         break
-        # else:
-        #     with open(FileName,'w') as FileData:
-        #         FileData.write('SubjectNumber : '+SbjNumber+'\n')
-        #         FileData.write('Sex : '+Sex+'\n')
-        #         FileData.write('Age : '+Age+'\n')
-        #         FileData.write('Handedness : '+Handedness+'\n')
-        #         ######################change on #################################
-        #         FileData.write('TrialNumber,BlockNumber,BlockName,StimNumber,StimName,ResponseAccuracy,ResponseTime')
-        #         ######################change off#################################
-        #         FileData.write('\n')
-        #     break
+
+# START THE EXPERIMENT
 if Exp:
-        # 0. add input for the com port if Triggers is "Yes" 
-        if WithTriggers == 'Yes': port = serial.Serial(com_port,9600, timeout=5) 
-        
-        # 0. Initialize the window
-        mywin=visual.Window([1800,1000], pos=[0,0], monitor="default",waitBlanking=True,units="pix",color='white',fullscr=True,allowGUI=True)
-        mywin.logOnFlip(msg='Flipped',level=1)
-        fix=visual.TextStim(win=mywin,text="+",pos=[0,0], color='black',height=30)
-        repeatNum=1 # how many repetitions of each item
+    if WithTriggers == 'Yes':
+        port = serial.Serial(PortName,9600, timeout=5) #COM4 is the right one
+        port.readData
+    
+    # 0. Initialize the window
+    mywin=visual.Window([1800,1000], pos=[0,0], monitor="default",waitBlanking=True,units="pix",color='white',fullscr=True,allowGUI=True)
+    #mywin.logOnFlip(msg='Flipped',level=1)
+    fix=visual.TextStim(win=mywin,text="+",pos=[0,0], color='black',height=30)
+    repeatNum=1 # how many repetitions of each item
 
-        # 1.1 show intro image
-        IntroFile= os.path.join(folder_path,'instructionscreen.png')
-        Intro=visual.SimpleImageStim(win=mywin,image=IntroFile)
-        Intro.draw()
+    # 1.1 show intro image
+    IntroFile= os.path.join(folder_path,'instructionscreen.png')
+    Intro=visual.SimpleImageStim(win=mywin,image=IntroFile)
+    Intro.draw()
+    mywin.flip()
+    # 1.2 Press SPACE key to continue
+    while True:
+        if len(event.getKeys(keyList='space'))>0:
+            break
+
+    # 2.1 Picture Naming Block
+    Exit=False
+    IntroText=visual.TextStim(win=mywin,text="",color=[0,0,0])
+    IntroText.setText(text='Picture Naming:\nName the picture when the question mark appears. Letàs start with 3 Training examples.\n\nPress x for bad trial.\nPress space to continue\nPress n to skip the block.\nPress q to quit')
+    IntroText.draw()
+    mywin.flip()
+
+
+
+    #2.2 Press SPACE key to continue
+    while True:
+        if len(event.getKeys(keyList='space'))>0:
+            break
+
+    start_tic=time.time()
+    onset=time.time()
+    timeOfRepeat=0
+    ReactTime=0
+
+    # 2.3 TRAINING
+    CountText=visual.TextStim(win=mywin,text="",color=[0,0,0])
+    Count=[3,2,1]
+    for i in Count:
+        CountText.setText(text=i)
+        CountText.draw()
         mywin.flip()
-        # 1.2 Press SPACE key to continue
-        while True:
-            if len(event.getKeys(keyList='space'))>0:
-                break
+        core.wait(1)
+    np.random.shuffle(image_list)
+    for i,s in enumerate(image_list):
+        if Exit or i==3: break
+        print('\nTrial '+str(i+1)+'¦ Block Training')
+        Exit=onetrial(mywin,s,fix,Timing,FileName,i+1,0,isImage=True)
+        # Exit=onetrial(mywin,s,fix,Timing,FileName,i+1,0,isImage=True,save=False)
+    ResponseText=visual.TextStim(win=mywin,text="",color=[0,0,0])
+    ResponseText.setText(text='Training has ended. \nPress space to continue')
+    ResponseText.draw()     
+    mywin.flip()   
+    while True:
+        if len(event.getKeys(keyList='space'))>0:
+            break
 
-        # 2.1 Picture Naming Block
-        Exit=False
-        IntroText=visual.TextStim(win=mywin,text="",color=[0,0,0])
-        IntroText.setText(text='Picture Naming:\nName the picture when the question mark appears. Letàs start with 3 Training examples.\n\nPress x for bad trial.\nPress space to continue\nPress n to skip the block.\nPress q to quit')
-        IntroText.draw()
+    # 2.3 Countdown
+    CountText=visual.TextStim(win=mywin,text="",color=[0,0,0])
+    Count=[3,2,1]
+    for i in Count:
+        CountText.setText(text=i)
+        CountText.draw()
         mywin.flip()
-        #2.2 Press SPACE key to continue
-        while True:
-            if len(event.getKeys(keyList='space'))>0:
-                break
-        # 2.3 TRAINING
-        CountText=visual.TextStim(win=mywin,text="",color=[0,0,0])
-        Count=[3,2,1]
-        for i in Count:
-            CountText.setText(text=i)
-            CountText.draw()
-            mywin.flip()
-            core.wait(1)
-        np.random.shuffle(image_list)
-        for i,s in enumerate(image_list):
-            if Exit or i==3: break
-            print('\nTrial '+str(i+1)+'¦ Block Training')
-            Exit=onetrial(mywin,s,fix,Timing,FileName,i+1,0,isImage=True)
-            # Exit=onetrial(mywin,s,fix,Timing,FileName,i+1,0,isImage=True,save=False)
-        ResponseText=visual.TextStim(win=mywin,text="",color=[0,0,0])
-        ResponseText.setText(text='Training has ended. \nPress space to continue')
-        ResponseText.draw()     
-        mywin.flip()   
-        while True:
-            if len(event.getKeys(keyList='space'))>0:
-                break
-
-        # 2.3 Countdown
-        CountText=visual.TextStim(win=mywin,text="",color=[0,0,0])
-        Count=[3,2,1]
-        for i in Count:
-            CountText.setText(text=i)
-            CountText.draw()
-            mywin.flip()
-            core.wait(1)
-
-        # 2.4 PICTURE naming: Loops for repeatNum times 
-        Exit=False
-        for n in range(repeatNum):
-            #shuffle image order shown
-            np.random.shuffle(image_list)
-            for i,s in enumerate(image_list):
-                if i >50: Exit=True
-                if Exit: break
-                print('\nTrial '+str(i+1)+'¦ Block '+str(n+1))
-                Exit=onetrial(mywin,s,fix,Timing,FileName,i+1,n+1,isImage=True)
-        ResponseText=visual.TextStim(win=mywin,text="",color=[0,0,0])
-        ResponseText.setText(text='Picture Naming has ended. \nPress space to continue')
-        ResponseText.draw()     
-        mywin.flip()       
-        while True: 
-            if len(event.getKeys(keyList='space'))>0: break
-
-        # 3.1 AUDIO Naming Block
-        Exit=False
-        IntroText=visual.TextStim(win=mywin,text="",color=[0,0,0])
-        IntroText.setText(text='Auditory Naming: \nRespond with the word that best explains the sentence when the question mark appears. We will start with 3 Training examples. \n\nPress x for bad trial.\nPress space to continue\nPress n to skip the block.\nPress q to quit')
-        IntroText.draw()
-        mywin.flip()
-        #3.2 Press SPACE key to continue
-        while True: 
-            if len(event.getKeys(keyList='space'))>0: break
-
-
-        # 3.3 AUDIO naming: Loops for repeatNum times
-        for n in range(repeatNum):
-            #shuffle image order shown
-            np.random.shuffle(sound_list)
-            for i,s in enumerate(sound_list):
-                if Exit or i == 3: break
-                print('\nTrial '+str(i+1)+'¦ Block '+str(n+1))
-                Exit=onetrial(mywin,s,fix,Timing,FileName,i+1,n+1,isSound=True)
-        ResponseText=visual.TextStim(win=mywin,text="",color=[0,0,0])
-        ResponseText.setText(text='Training has ended. \nPress space to continue')
-        ResponseText.draw()     
-        mywin.flip()   
-        while True:
-            if len(event.getKeys(keyList='space'))>0:
-                break
-
-        # Countdown
-        CountText=visual.TextStim(win=mywin,text="",color='black')
-        Count=[3,2,1]
-        for i in Count:
-            CountText.setText(text=i)
-            CountText.draw()
-            mywin.flip()
-            core.wait(1)
-
-        # 3.3 AUDIO naming: Loops for repeatNum times
-        for n in range(repeatNum):
-            #shuffle image order shown
-            np.random.shuffle(sound_list)
-            for i,s in enumerate(sound_list):
-                if Exit: break
-                print('\nTrial '+str(i+1)+'¦ Block '+str(n+1))
-                Exit=onetrial(mywin,s,fix,Timing,FileName,i+1,n+1,isSound=True)
-        ResponseText=visual.TextStim(win=mywin,text="",color='black')
-        ResponseText.setText(text='Auditory Naming has ended. \nPress space to continue')
-        ResponseText.draw()     
-        mywin.flip()       
-        while True:
-            if len(event.getKeys(keyList='space'))>0:
-                break
         core.wait(1)
 
+    # 2.4 PICTURE naming: Loops for repeatNum times 
+    Exit=False
+    for n in range(repeatNum):
+        #shuffle image order shown
+        np.random.shuffle(image_list)
+        for i,s in enumerate(image_list):
+            if i >50: Exit=True
+            if Exit: break
+            print('\nTrial '+str(i+1)+'¦ Block '+str(n+1))
+            Exit=onetrial(mywin,s,fix,Timing,FileName,i+1,n+1,isImage=True)
+    ResponseText=visual.TextStim(win=mywin,text="",color=[0,0,0])
+    ResponseText.setText(text='Picture Naming has ended. \nPress space to continue')
+    ResponseText.draw()     
+    mywin.flip()       
+    while True: 
+        if len(event.getKeys(keyList='space'))>0: break
 
-        # 5.1 READING repetition Block
-        Exit=False
-        IntroText=visual.TextStim(win=mywin,text="",color='black')
-        IntroText.setText(text='Reading Sentence Completion:\nRead quietly and complete the sentence vocally to the best of your ability\n\nPress x for bad trial.\nPress space to continue\nPress n to skip the block.\nPress q to quit')
-        IntroText.draw()
+    # 3.1 AUDIO Naming Block
+    Exit=False
+    IntroText=visual.TextStim(win=mywin,text="",color=[0,0,0])
+    IntroText.setText(text='Auditory Naming: \nRespond with the word that best explains the sentence when the question mark appears. We will start with 3 Training examples. \n\nPress x for bad trial.\nPress space to continue\nPress n to skip the block.\nPress q to quit')
+    IntroText.draw()
+    mywin.flip()
+    #3.2 Press SPACE key to continue
+    while True: 
+        if len(event.getKeys(keyList='space'))>0: break
+
+
+    # 3.3 AUDIO naming: Loops for repeatNum times
+    for n in range(repeatNum):
+        #shuffle image order shown
+        np.random.shuffle(sound_list)
+        for i,s in enumerate(sound_list):
+            if Exit or i == 3: break
+            print('\nTrial '+str(i+1)+'¦ Block '+str(n+1))
+            Exit=onetrial(mywin,s,fix,Timing,FileName,i+1,n+1,isSound=True)
+    ResponseText=visual.TextStim(win=mywin,text="",color=[0,0,0])
+    ResponseText.setText(text='Training has ended. \nPress space to continue')
+    ResponseText.draw()     
+    mywin.flip()   
+    while True:
+        if len(event.getKeys(keyList='space'))>0:
+            break
+
+    # Countdown
+    CountText=visual.TextStim(win=mywin,text="",color='black')
+    Count=[3,2,1]
+    for i in Count:
+        CountText.setText(text=i)
+        CountText.draw()
         mywin.flip()
-        #5.2 Press SPACE key to continue
-        while True:
+        core.wait(1)
+
+    # 3.3 AUDIO naming: Loops for repeatNum times
+    for n in range(repeatNum):
+        #shuffle image order shown
+        np.random.shuffle(sound_list)
+        for i,s in enumerate(sound_list):
+            if Exit: break
+            print('\nTrial '+str(i+1)+'¦ Block '+str(n+1))
+            Exit=onetrial(mywin,s,fix,Timing,FileName,i+1,n+1,isSound=True)
+    ResponseText=visual.TextStim(win=mywin,text="",color='black')
+    ResponseText.setText(text='Auditory Naming has ended. \nPress space to continue')
+    ResponseText.draw()     
+    mywin.flip()       
+    while True:
+        if len(event.getKeys(keyList='space'))>0:
+            break
+    core.wait(1)
+
+
+    # 5.1 READING repetition Block
+    Exit=False
+    IntroText=visual.TextStim(win=mywin,text="",color='black')
+    IntroText.setText(text='Reading Sentence Completion:\nRead quietly and complete the sentence vocally to the best of your ability\n\nPress x for bad trial.\nPress space to continue\nPress n to skip the block.\nPress q to quit')
+    IntroText.draw()
+    mywin.flip()
+    #5.2 Press SPACE key to continue
+    while True:
+        if len(event.getKeys(keyList='space'))>0:
+            break
+
+    # 5.3 TRAINING READING repetition: Loops for repeatNum times
+    for n in range(repeatNum):
+        #shuffle image order shown
+        np.random.shuffle(reading_list)
+        for i,s in enumerate(reading_list):
+            if Exit or i == 3: break
+            print('\nTrial '+str(i+1)+'¦ Block '+str(n+1))
+            Exit=onetrial(mywin,s,fix,Timing,FileName,i+1,n+1,isText=True)
+    # Countdown        
+    CountText=visual.TextStim(win=mywin,text="",color='black')
+    Count=[3,2,1]
+    for i in Count:
+        CountText.setText(text=i)
+        CountText.draw()
+        mywin.flip()
+        core.wait(1)
+    # 5.2 READING repetition: Loops for repeatNum times
+    for n in range(repeatNum):
+        #shuffle image order shown
+        np.random.shuffle(reading_list)
+        for i,s in enumerate(reading_list):
+            if Exit: break
+            print('\nTrial '+str(i+1)+'¦ Block '+str(n+1))
+            Exit=onetrial(mywin,s,fix,Timing,FileName,i+1,n+1,isText=True)
+    ResponseText=visual.TextStim(win=mywin,text="",color='black')
+    ResponseText.setText(text='Word Repetition has ended.\n\nPress space to continue')
+    ResponseText.draw()     
+    mywin.flip()       
+    while True:
             if len(event.getKeys(keyList='space'))>0:
                 break
 
-        # 5.3 TRAINING READING repetition: Loops for repeatNum times
-        for n in range(repeatNum):
-            #shuffle image order shown
-            np.random.shuffle(reading_list)
-            for i,s in enumerate(reading_list):
-                if Exit or i == 3: break
-                print('\nTrial '+str(i+1)+'¦ Block '+str(n+1))
-                Exit=onetrial(mywin,s,fix,Timing,FileName,i+1,n+1,isText=True)
-        # Countdown        
-        CountText=visual.TextStim(win=mywin,text="",color='black')
-        Count=[3,2,1]
-        for i in Count:
-            CountText.setText(text=i)
-            CountText.draw()
-            mywin.flip()
-            core.wait(1)
-        # 5.2 READING repetition: Loops for repeatNum times
-        for n in range(repeatNum):
-            #shuffle image order shown
-            np.random.shuffle(reading_list)
-            for i,s in enumerate(reading_list):
-                if Exit: break
-                print('\nTrial '+str(i+1)+'¦ Block '+str(n+1))
-                Exit=onetrial(mywin,s,fix,Timing,FileName,i+1,n+1,isText=True)
-        ResponseText=visual.TextStim(win=mywin,text="",color='black')
-        ResponseText.setText(text='Word Repetition has ended.\n\nPress space to continue')
-        ResponseText.draw()     
-        mywin.flip()       
-        while True:
-                if len(event.getKeys(keyList='space'))>0:
-                    break
-
-        ResponseText=visual.TextStim(win=mywin,text="",color='black',height=50)
-        ResponseText.setText(text='Congrats! \nYou are done!\n\nPress SPACE BAR to end the experiment \n\nData saved as: \n...'+ FileName[-50:-1])
-        ResponseText.draw()     
-        mywin.flip()       
-        while True:
-                if len(event.getKeys(keyList='space'))>0:
-                    break
+    # 3. END OF TASK
+    ResponseText=visual.TextStim(win=mywin,text="",color='black',height=20)
+    ResponseText.setText(text='Congrats! \nYou are done!\n\nPress SPACE BAR to end the experiment \n\nData saved as: \n...'+ FileName[-50:-1])
+    ResponseText.draw()     
+    mywin.flip()       
+    while True:
+            if len(event.getKeys(keyList='space'))>0:
+                break
