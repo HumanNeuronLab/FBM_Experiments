@@ -176,7 +176,7 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
             ValidTrial = 1
             break        
         if len(event.getKeys(keyList='x'))>0:
-            trial_type="no-go"
+            trial_type="go"
             response_type="wrong"
             duration = time.time()-tic
             ReactionTime = time.time()
@@ -184,7 +184,7 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
             ValidTrial = 0 
             break
         if len(event.getKeys(keyList='n'))>0:
-            trial_type="no-go"
+            trial_type="go"
             response_type="wrong"
             ReactionTime = 0
             duration = 0
@@ -233,7 +233,7 @@ while True:
         Volume=InitialData[1]
         PortName=InitialData[2]
         WithTriggers=InitialData[3]
-        FileName='sub-'+SbjNumber+'_task-LocalizerAud165_events.tsv'
+        FileName='sub-'+SbjNumber+'_task-LanguageMapping_events.tsv'
         FileName=os.path.join(Respath,FileName)
         print(FileName)
         if os.path.isfile(FileName):
@@ -243,7 +243,7 @@ while True:
                 with open(FileName,'w') as FileData:
                     FileData.write('\n')
                     FileData.write('sub- : '+SbjNumber+'\n')
-                    FileData.write('task- : LocalizerAud165\n')
+                    FileData.write('task- : LanguageMapping\n')
                     # txt=[str(BlockName),StimNumber,StimName,str(timeOfRepeat),str(Resp[0]),str(Resp[1])]
                     FileData.write('onset\tduration\ttrial_type\tcategory\texemplar\tresponse_type\tresponse_time')
                     FileData.write('\n')
