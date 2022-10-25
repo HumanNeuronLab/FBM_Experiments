@@ -1,4 +1,3 @@
-
 import numpy as np
 from numpy.core.fromnumeric import size
 from psychopy.visual import text
@@ -16,7 +15,7 @@ import time
 import serial
 from pyo import *
 
-###   Detials
+### Details
 
 
 # Define the hardcoded values
@@ -59,7 +58,8 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         units="pix",
         radius=60,
         fillColor=[-1, -1, -1],
-        lineColor=[-1, -1, -1]
+        lineColor=[-1, -1, -1],
+        colorSpace='rgb'
     )
 
     circle_gray = visual.Circle(
@@ -68,7 +68,8 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         units="pix",
         radius=60,
         fillColor=[0, 0, 0],
-        lineColor=[0, 0, 0]
+        lineColor=[0, 0, 0],
+        colorSpace='rgb'
     )    
     quitnow=False
     tic=time.time()
