@@ -75,8 +75,8 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
     event.clearEvents(eventType=None)
     if isSound==True: Sound = sound.Sound(Stim) 
     if isText==False:
-        BlockName = Stim.split('\\')[-2]
-        StimNameTemp = Stim.split('\\')[-1][0:-4]
+        BlockName = os.path.basename(os.path.dirname(Stim))
+        StimNameTemp = os.path.splitext(os.path.basename(Stim))[0]
         StimNumber, StimName = StimNameTemp.split('_')
     else:
         BlockName = 'reading_completion'
