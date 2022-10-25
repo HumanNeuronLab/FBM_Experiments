@@ -13,6 +13,7 @@ import os.path
 import glob
 import time
 import serial
+from psychopy import parallel
 from pyo import *
 
 ### Details
@@ -32,6 +33,7 @@ folder_path = os.path.dirname(os.path.abspath(__file__))
 print(folder_path)
 Respath= os.path.join(folder_path,'Results')
 ExperimentType='1'
+pportInt = int("00000101", 2)  # pins 2 and 4 high
 
 # folder_path = "C:\\Users\\lora.fanda\\Documents\\GROWN\\"
 SoundFile= os.path.join(folder_path,'auditory_naming','*.wav')
@@ -105,7 +107,9 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         StimVisual.draw()
         circle.draw()
         mywin.flip()
+        if isParallelPort: pport.setData(pportInt)
         core.wait(0.01)
+        if isParallelPort: pport.setData(0)
         StimVisual.draw()
         circle_gray.draw()
         mywin.flip()
@@ -119,7 +123,9 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         StimVisual.draw()
         circle.draw()
         mywin.flip()
+        if isParallelPort: pport.setData(pportInt)
         core.wait(0.05)
+        if isParallelPort: pport.setData(0)
         StimVisual.draw()
         circle_gray.draw()
         mywin.flip()
@@ -130,7 +136,9 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         StimVisual.draw()
         circle.draw()
         mywin.flip()
+        if isParallelPort: pport.setData(pportInt)
         core.wait(0.05) 
+        if isParallelPort: pport.setData(0)
         StimVisual.draw()
         circle_gray.draw()
         mywin.flip()
@@ -227,6 +235,8 @@ while True:
     DlgInit.addField("Volume (0-1): ",1)
     DlgInit.addField("PORT (COM): ",'COM3')
     DlgInit.addField("Use serial triggers?: ",choices= ["No","Yes"])
+    DlgInit.addField("Use // port for trigger?: ", choices=['No', 'Yes'])
+    DlgInit.addField("// port: ", '/dev/parport0')
     DlgInit.show()
     InitialData = DlgInit.data
     if DlgInit.OK: # InitialData==['', '', 'M', 'R', 1,'COM9','No']:# Cancel if press
@@ -234,6 +244,8 @@ while True:
         Volume=InitialData[1]
         PortName=InitialData[2]
         WithTriggers=InitialData[3]
+        isParallelPort=(InitialData[4] == 'Yes')
+        pportAddress=InitialData[5]
         FileName='sub-'+SbjNumber+'_task-LanguageMapping_events.tsv'
         FileName=os.path.join(Respath,FileName)
         print(FileName)
@@ -267,6 +279,10 @@ if Exp:
         port = serial.Serial(PortName,9600, timeout=5) #COM4 is the right one
         port.readData
     
+    if isParallelPort:
+        pport = parallel.ParallelPort(address=pportAddress)
+        pport.setData(0)
+    
     # 0. Initialize the window
     mywin=visual.Window([1800,1000], pos=[0,0], monitor="default",waitBlanking=True,units="pix",color='white',fullscr=True,allowGUI=True)
     #mywin.logOnFlip(msg='Flipped',level=1)
@@ -286,7 +302,7 @@ if Exp:
     # 2.1 Picture Naming Block
     Exit=False
     IntroText=visual.TextStim(win=mywin,text="",color=[0,0,0])
-    IntroText.setText(text='Picture Naming:\nName the picture when the question mark appears. Letàs start with 3 Training examples.\n\nPress x for bad trial.\nPress space to continue\nPress n to skip the block.\nPress q to quit')
+    IntroText.setText(text='Picture Naming:\nName the picture when the question mark appears. Starting with 3 Training examples.\n\nPress x for bad trial.\nPress space to continue\nPress n to skip the block.\nPress q to quit')
     IntroText.draw()
     mywin.flip()
 
