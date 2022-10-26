@@ -22,7 +22,9 @@ from pyo import *
 # Define the hardcoded values
 psychopy.prefs.hardware['audioLib'] = ['PTB', 'sounddevice','pyo','pygame']
 Center = [0,0]
-BaseTime=[0.8,1,1.2,1.5]
+# BaseTime=[0.8] # BaseLine is alwazs 0.8, 
+BaseTime=[1.3] # BaseLine is alwazs 0.8, plus 500 ms of sound 
+PreStimTime=[0.5]
 CueTime=[1] # Official
 ResponseTime=[2] # Official
 Timing=[BaseTime,CueTime,ResponseTime]
@@ -96,7 +98,9 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
     fix.draw()
     mywin.flip()
     el1=time.time()-tic
-    core.wait(BaseTime-el1)
+    core.wait(BaseTime-el1-PreStimTime)
+    sound.Sound('A',0.2).play()
+    core.wait(PreStimTime)
     print('¦--- Baseline (fix) duration: '+ str(time.time()-tic)[0:7] + '   right: '+ str(BaseTime))
 
     ## 2: CUE
@@ -109,27 +113,28 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         mywin.flip()
         if isParallelPort: pport.setData(pportInt)
         core.wait(0.01)
-        if isParallelPort: pport.setData(0)
         StimVisual.draw()
         circle_gray.draw()
         mywin.flip()
+        if isParallelPort: pport.setData(0)
         # core.wait()
-        if WithTriggers == 'Yes':
-            port.write(b'v')
-        if WithTriggers == 'Yes': port.write(b'a')
+        # if WithTriggers == 'Yes':
+        #     port.write(b'v')
+        # if WithTriggers == 'Yes': port.write(b'a')
     elif isText:
         StimVisual=visual.TextStim(win=mywin,text="",color='black',height=50)
         StimVisual.setText(text=StimSentence)
         StimVisual.draw()
+        core.wait(0.5)
         circle.draw()
         mywin.flip()
         if isParallelPort: pport.setData(pportInt)
         core.wait(0.05)
-        if isParallelPort: pport.setData(0)
         StimVisual.draw()
         circle_gray.draw()
         mywin.flip()
-        if WithTriggers == 'Yes': port.write(b'c')
+        if isParallelPort: pport.setData(0)
+        # if WithTriggers == 'Yes': port.write(b'c')
         core.wait(3.5)
     else:
         StimVisual=visual.SimpleImageStim(win=mywin,image=os.path.join(folder_path,'listen_icon.png'))
@@ -138,11 +143,11 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         mywin.flip()
         if isParallelPort: pport.setData(pportInt)
         core.wait(0.05) 
-        if isParallelPort: pport.setData(0)
         StimVisual.draw()
         circle_gray.draw()
         mywin.flip()
-        if WithTriggers == 'Yes': port.write(b'b')
+        if isParallelPort: pport.setData(0)
+        # if WithTriggers == 'Yes': port.write(b'b')
         Sound.play()
         core.wait(Sound.getDuration()+1)  # TODO why plus one   
     el2=time.time()-tic
