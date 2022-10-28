@@ -1,3 +1,11 @@
+# conda create -n hnlEnv python=3.7
+# conda activate hnlEnv
+# conda install wxPython
+# pip3 install -r requirements.txt
+# 
+# sudo rmmod lp
+# chmod a+rw /devc/parport0
+#  
 from os import path
 from glob import glob
 from time import time
