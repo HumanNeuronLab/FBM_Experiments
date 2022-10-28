@@ -10,30 +10,23 @@ from os import path
 from glob import glob
 from time import time
 from numpy import random
-from psychopy import core
-from psychopy import event
-from psychopy import gui
-from psychopy import parallel
-from psychopy import prefs
-from psychopy import sound
-from psychopy import visual
+from psychopy import core, event, gui, parallel, prefs, sound, visual
 
-# Define the hardcoded values
+# Hardcoded values
 prefs.hardware['audioLib'] = ['PTB', 'sounddevice','pyo','pygame']
 folderPath = path.dirname(path.abspath(__file__))
 resultsPath = path.join(folderPath,'Results')
 instructionsFile = path.join(folderPath, 'instructionscreen.png')
 pportInt = int("00000101", 2)  # pins 2 and 4 high
 
-Center = [0,0]
-BaseTime = [1.3] # BaseLine is 0.8, plus 500 ms of sound 
-PreStimTime = 0.5 # Sound trigger for stims appears 500ms before stimulus
-PreStimDuration = 0.2
-CueTime = [1] # 
-ResponseTime = [2] # 
-Timing = [BaseTime, CueTime, ResponseTime]
-Exp = True
-repeatNum = 1 # how many repetitions of each item
+baseTime = [1.3] # BaseLine is 0.8, plus 500 ms of sound 
+preStimTime = 0.5 # Sound trigger for stims appears 500ms before stimulus
+preStimDuration = 0.2
+cueTime = [1]
+responseTime = [2]
+timing = [baseTime, cueTime, responseTime]
+doExperiment = True
+repeatNum = 1
 stimuliTypes=['All','Image','Sound','Text']
 
 def countdown(window):
@@ -48,12 +41,7 @@ def write_data(filename, onset_tic, duration, trialType, blockName, stimNumber, 
     print('¦----- reactionTime: ' + str(reactionTime)[0:7])
 
     with open(filename,"a") as fileData:
-        ####################change on#####################################
-        # 'onset,duration,trialType,category,exemplar,response_type,response_time'
         txt = [str(onset_tic), str(duration)[0:7], trialType, blockName, stimNumber, response_type, str(reactionTime)]
-        # CategoryLocalizer,63,word,1664293981.9973466,0,0
-        # txt=[str(blockName),stimNumber,stimName,str(timeOfRepeat),str(Resp[0]),str(Resp[1])]
-        #####################change off ####################################
         txt = [str(t) for t in txt]
         fileData.write("\t".join(txt))
         fileData.write('\n')
@@ -100,19 +88,19 @@ def one_trial(window, fix, circles, stimuliType, item, start_tic, filename, ppor
     else: 
         return [False, True]
 
-    random.shuffle(Timing[0])
-    BaseTime = Timing[0][0]
-    CueTime = Timing[1][0] # Cue is always only the first value
+    random.shuffle(timing[0])
+    baseTime = timing[0][0]
+    cueTime = timing[1][0]
     
     ## BASELINE
     circles[1].draw()
     fix.draw()
     window.flip()
     el1 = time()-tic
-    core.wait(BaseTime-el1-PreStimTime)
-    sound.Sound('A', PreStimDuration).play()
-    core.wait(PreStimTime)
-    print('¦--- Baseline (fix) duration: ' + str(time()-tic)[0:7] + '   right: ' + str(BaseTime))
+    core.wait(baseTime-el1-preStimTime)
+    sound.Sound('A', preStimDuration).play()
+    core.wait(preStimTime)
+    print('¦--- Baseline (fix) duration: ' + str(time()-tic)[0:7] + '   right: ' + str(baseTime))
 
     ## CUE
     tic = time()
@@ -156,9 +144,9 @@ def one_trial(window, fix, circles, stimuliType, item, start_tic, filename, ppor
         core.wait(3.5)
 
     el2 = time()-tic
-    core.wait(CueTime-el2)
+    core.wait(cueTime-el2)
     duration = time()-tic
-    print('¦--- Cue (Image) duration:    ' +  str(duration)[0:7] + '   right: ' + str(CueTime))
+    print('¦--- Cue duration:    ' +  str(duration)[0:7] + '   right: ' + str(cueTime))
 
     ## RESPONSE
     responseText = visual.TextStim(win=window, text='?', color='black', height=100)
@@ -192,59 +180,56 @@ def one_trial(window, fix, circles, stimuliType, item, start_tic, filename, ppor
             return [True, True]
 
 ## MAIN
+imageFiles = path.join(folderPath,'picture_naming','*.png')
+imageList = []
+for file in glob(imageFiles): imageList.append(file)
 
-ImageFiles = path.join(folderPath,'picture_naming','*.png')
-image_list = []
-for file in glob(ImageFiles): image_list.append(file)
+soundFile = path.join(folderPath,'auditory_naming','*.wav')
+soundList = []
+for file in glob(soundFile): soundList.append(file)
 
-SoundFile = path.join(folderPath,'auditory_naming','*.wav')
-sound_list = []
-for file in glob(SoundFile): sound_list.append(file)
-
-reading_list = open(path.join(folderPath,'reading_completion','reading_comp.txt')).read().split('\n')
+readingList = open(path.join(folderPath,'reading_completion','reading_comp.txt')).read().split('\n')
 
 print('¦...... In folder:  ', folderPath)
-print('¦............ Number of Images:  ', len(image_list))
-print('¦............ Number of Sounds:  ', len(sound_list))
+print('¦............ Number of Images:  ', len(imageList))
+print('¦............ Number of Sounds:  ', len(soundList))
 
 ## DIALOG WINDOW
 while True:
-    DlgInit = gui.Dlg(title="Functional Language Mapping Initialisation")
-    DlgInit.addField("Subject ID:")
-    DlgInit.addField("Volume (0-1):",1)
-    DlgInit.addField("Kind of stimuli:", choices=stimuliTypes)
-    DlgInit.addField("Number of block repetition (50 stimuli per block):",1)
-    DlgInit.addField("Use // port for trigger?:", choices=['No', 'Yes'])
-    DlgInit.addField("// port address:", '/dev/parport0')
-    DlgInit.show()
-    InitialData = DlgInit.data
-    if DlgInit.OK:
-        SbjNumber = InitialData[0]
-        Volume = InitialData[1]
-        stimuliType = InitialData[2]
-        repeatNum = InitialData[3]
-        isParallelPort = (InitialData[4] == 'Yes')
-        pportAddress = InitialData[5]
-        filename = path.join(resultsPath,'sub-' + SbjNumber + '_task-LanguageMapping_events.tsv')
+    dlg = gui.Dlg(title="Functional Language Mapping Initialisation")
+    dlg.addField("Subject ID:")
+    dlg.addField("Kind of stimuli:", choices=stimuliTypes)
+    dlg.addField("Number of block repetition (50 stimuli per block):",1)
+    dlg.addField("Use // port for trigger?:", choices=['No', 'Yes'])
+    dlg.addField("// port address:", '/dev/parport0')
+    dlg.show()
+    dlgData = dlg.data
+    if dlg.OK:
+        subjectId = dlgData[0]
+        stimuliType = dlgData[2]
+        repeatNum = dlgData[3]
+        isParallelPort = (dlgData[4] == 'Yes')
+        pportAddress = dlgData[5]
+        filename = path.join(resultsPath, 'sub-' + subjectId + '_task-LanguageMapping_events.tsv')
 
         if path.isfile(filename):
-            DlgErrorFileExist = gui.Dlg(title="Error")
-            DlgErrorFileExist.addText("Subject name already exists, cannot overwrite")
-            DlgErrorFileExist.show()
-            Exp = False
+            dlgErrorFileExist = gui.Dlg(title="Error")
+            dlgErrorFileExist.addText("Subject name already exists, cannot overwrite")
+            dlgErrorFileExist.show()
+            doExperiment = False
             break                          
         else:
             with open(filename,'w') as fileData:
-                fileData.write('SubjectNumber : ' + SbjNumber + '\n')
+                fileData.write('SubjectNumber : ' + subjectId + '\n')
                 fileData.write('onset\tduration\ttrialType\tcategory\texemplar\tresponse_type\tresponse_time')
                 fileData.write('\n')
             break
     else:
-        Exp = False
+        doExperiment = False
         break
 
 ## EXPERIMENT
-if Exp:
+if doExperiment:
     shallExit = False
     instructionText = '\n\nPress x for bad trial.\nPress space to continue\nPress n to skip the block.\nPress q to quit'
     congratsText = 'Congrats! \nYou are done!\n\nPress SPACE BAR to end the experiment \n\nData saved as: \n'
@@ -265,7 +250,7 @@ if Exp:
     elif stimuliType == 'Sound': isSound = True
     elif stimuliType == 'Text' : isText  = True
     else: 
-        Exp = False
+        doExperiment = False
         shallExit = True
 
     # WINDOW INIT
@@ -284,15 +269,15 @@ if Exp:
     # TASK BLOCKS
     if isImage and not shallExit:
         introText = 'Picture Naming:\nName the picture when the question mark appears.' + instructionText
-        itemList = image_list
+        itemList = imageList
         shallExit = task_block(window, fix, circles, 'Image', introText, itemList, start_tic, filename, pport)
     if isSound and not shallExit:
         introText = 'Auditory Naming:\nRespond with the word that best explains the sentence when the question mark appears.' + instructionText
-        itemList = sound_list
+        itemList = soundList
         shallExit = task_block(window, fix, circles, 'Sound', introText, itemList, start_tic, filename, pport)
     if isText and not shallExit:
         introText = 'Reading Sentence Completion:\nRead quietly and complete the sentence vocally to the best of your ability' + instructionText
-        itemList = reading_list
+        itemList = readingList
         shallExit = task_block(window, fix, circles, 'Text', introText, itemList, start_tic, filename, pport)
 
     # END OF TASKS
