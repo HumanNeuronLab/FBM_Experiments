@@ -24,7 +24,7 @@ psychopy.prefs.hardware['audioLib'] = ['PTB', 'sounddevice','pyo','pygame']
 Center = [0,0]
 # BaseTime=[0.8] # BaseLine is alwazs 0.8, 
 BaseTime=[1.3] # BaseLine is alwazs 0.8, plus 500 ms of sound 
-PreStimTime=[0.5]
+PreStimTime=0.5
 CueTime=[1] # Official
 ResponseTime=[2] # Official
 Timing=[BaseTime,CueTime,ResponseTime]
@@ -112,7 +112,7 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         circle.draw()
         mywin.flip()
         if isParallelPort: pport.setData(pportInt)
-        core.wait(0.01)
+        core.wait(0.5)
         StimVisual.draw()
         circle_gray.draw()
         mywin.flip()
@@ -285,7 +285,7 @@ if Exp:
         port.readData
     
     if isParallelPort:
-        pport = parallel.ParallelPort(address=pportAddress)
+        pport = parallel.ParallelPort(address="/dev/parport0")
         pport.setData(0)
     
     # 0. Initialize the window

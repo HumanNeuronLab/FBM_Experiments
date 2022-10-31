@@ -4,13 +4,21 @@
 # pip3 install -r requirements.txt
 # 
 # sudo rmmod lp
-# chmod a+rw /devc/parport0
+# chmod a+rw /dev/parport0
 #  
+
+from pyo import *
 from os import path
 from glob import glob
 from time import time
 from numpy import random
-from psychopy import core, event, gui, parallel, prefs, sound, visual
+from psychopy import core
+from psychopy import event
+from psychopy import gui
+from psychopy import parallel
+from psychopy import prefs
+from psychopy import sound
+from psychopy import visual
 
 # Hardcoded values
 prefs.hardware['audioLib'] = ['PTB', 'sounddevice','pyo','pygame']
@@ -22,7 +30,7 @@ pportInt = int("00000101", 2)  # pins 2 and 4 high
 baseTime = [1.3] # BaseLine is 0.8, plus 500 ms of sound 
 preStimTime = 0.5 # Sound trigger for stims appears 500ms before stimulus
 preStimDuration = 0.2
-cueTime = [1]
+cueTime = [6] #officially 1
 responseTime = [2]
 timing = [baseTime, cueTime, responseTime]
 doExperiment = True
@@ -206,10 +214,10 @@ while True:
     dlgData = dlg.data
     if dlg.OK:
         subjectId = dlgData[0]
-        stimuliType = dlgData[2]
-        repeatNum = dlgData[3]
-        isParallelPort = (dlgData[4] == 'Yes')
-        pportAddress = dlgData[5]
+        stimuliType = dlgData[1]
+        repeatNum = dlgData[2]
+        isParallelPort = (dlgData[3] == 'Yes')
+        pportAddress = dlgData[4]
         filename = path.join(resultsPath, 'sub-' + subjectId + '_task-LanguageMapping_events.tsv')
 
         if path.isfile(filename):
@@ -256,8 +264,10 @@ if doExperiment:
     # WINDOW INIT
     window = visual.Window([1800,1000], pos=[0,0], monitor="default", waitBlanking=True, units="pix", color='white', fullscr=True, allowGUI=True)
     fix = visual.TextStim(win=window, text="+", pos=[0,0], color='black', height=30)
-    circle_black = visual.Circle(pos=[-900,480], win=window, units="pix", radius=60, fillColor=[-1, -1, -1], lineColor=[-1, -1, -1], colorSpace='rgb')
-    circle_gray  = visual.Circle(pos=[-900,480], win=window, units="pix", radius=60, fillColor=[0, 0, 0], lineColor=[0, 0, 0], colorSpace='rgb')
+    #circle_black = visual.Circle(pos=[-900,480], win=window, units="pix", radius=60, fillColor=[-1, -1, -1], lineColor=[-1, -1, -1], colorSpace='rgb')
+    #circle_gray  = visual.Circle(pos=[-900,480], win=window, units="pix", radius=60, fillColor=[0, 0, 0], lineColor=[0, 0, 0], colorSpace='rgb')
+    circle_black = visual.Circle(pos=[-900,-480], win=window, units="pix", radius=60, fillColor=[-1, -1, -1], lineColor=[-1, -1, -1], colorSpace='rgb')
+    circle_gray  = visual.Circle(pos=[-900,-480], win=window, units="pix", radius=60, fillColor=[0, 0, 0], lineColor=[0, 0, 0], colorSpace='rgb')
     circles = [circle_black, circle_gray]
 
     start_tic = time()
