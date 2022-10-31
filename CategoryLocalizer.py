@@ -5,7 +5,6 @@ from numpy import random as np_random
 from pyo import random
 from psychopy import prefs, visual, core, event, gui, parallel
 
-###   Details CHANGE TEXT FILE NAMES
 # Define the hardcoded values
 prefs.hardware['audioLib'] = ['PTB', 'sounddevice','pyo','pygame']
 folderPath = path.dirname(path.abspath(__file__))
@@ -58,11 +57,11 @@ def task_block(window, fix, circles, introText, itemList, filename, pport):
         repeatIndex.insert(i, True)
         new_i = i + rand_index
 
-    start_tic = time()
+    startTic = time()
 
     for i, item in enumerate(itemList):
         print('\nTrial ' + str(i+1) + '¦ ')
-        stopExp, stopBlock = one_trial(window, fix, circles, item,  start_tic, filename, pport, repeatIndex[i])
+        stopExp, stopBlock = one_trial(window, fix, circles, item,  startTic, filename, pport, repeatIndex[i])
         if stopBlock: return stopExp
 
     visual.TextStim(win=window, text='Task has ended.\n\nPress space to continue', color='black').draw()     
@@ -72,7 +71,7 @@ def task_block(window, fix, circles, introText, itemList, filename, pport):
 
     return stopExp
 
-def one_trial(window, fix, circles, item, start_tic, filename, pport, isRepeatImage=False):
+def one_trial(window, fix, circles, item, startTic, filename, pport, isRepeatImage=False):
     # return [stopExp, stopBlock]
     tic = time()
     event.clearEvents()
@@ -95,7 +94,7 @@ def one_trial(window, fix, circles, item, start_tic, filename, pport, isRepeatIm
 
     ## CUE
     tic = time()
-    onset_tic = tic - start_tic
+    onset_tic = tic - startTic
 
     stimVisual = visual.SimpleImageStim(win=window,image=item)
     stimVisual.draw()
@@ -168,6 +167,7 @@ while True:
         SbjNumber = InitialData[0]
         isParallelPort = (InitialData[1] == 'Yes')
         pportAddress = InitialData[2]
+
         filename = path.join(resultsPath, 'sub-' + SbjNumber + '_task-LocalizerVisual_events.tsv')
 
         if path.isfile(filename):
