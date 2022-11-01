@@ -25,10 +25,11 @@ prefs.hardware['audioLib'] = ['PTB', 'sounddevice','pyo','pygame']
 folderPath = path.dirname(path.abspath(__file__))
 resultsPath = path.join(folderPath,'Results')
 instructionsFile = path.join(folderPath, 'instructionscreen.png')
+stimSoundFile = path.join(folderPath, 'soundphotocamera.wav')
 pportInt = int("00000101", 2)  # pins 2 and 4 high
 
-baseTime = [1.3] # BaseLine is 0.8, plus 500 ms of sound 
-preStimTime = 0.5 # Sound trigger for stims appears 500ms before stimulus
+baseTime = [2] # BaseLine is 0.8, plus 500 ms of sound 
+preStimTime = 1 # Sound trigger for stims appears 500ms before stimulus
 preStimDuration = 0.2
 cueTime = [3] #officially 1
 responseTime = [2]
@@ -106,7 +107,7 @@ def one_trial(window, fix, circles, stimuliType, item, start_tic, filename, ppor
     window.flip()
     el1 = time()-tic
     core.wait(baseTime-el1-preStimTime)
-    sound.Sound('A', preStimDuration).play()
+    sound.Sound(stimSoundFile).play()
     core.wait(preStimTime)
     print('¦--- Baseline (fix) duration: ' + str(time()-tic)[0:7] + '   right: ' + str(baseTime))
 
