@@ -1,0 +1,50 @@
+01_Sie konnte am Tonfall seiner ... erkennen, dass er verärgert war._STIMME
+02_Sie ist in die Bäckerei gegangen, um einen Laib ... zu kaufen._BROT
+03_Robert machte ihr einen Heiratsantrag und schenkte ihr einen ..._RING
+04_Der Zahnarzt empfiehlt, sich  die Zähne zweimal am ... zu putzen_TAG
+05_Er lockerte die Krawatte um seinen ..._HALS
+06_Daniel wurde gebeten, der neue Trainer des... zu werden._TEAMS
+07_Sie haben ihr Essen bezahlt, aber vergessen, ein ... zu geben._TRINKGELD
+08_Um ihr Studium zu bezahlen, bat sie die Bank um einen ..._KREDIT
+09_Da sie ihre Uhr nicht trug, fragte sie die ..._ZEIT
+10_Denise kann von den Lippen ablesen, weil sie ... ist._TAUB
+11_Sie setzten sich zusammen, ohne ein ... zu sagen._WORT
+12_Nachdem das Schiff den Eisberg gerammt hatte, begann es zu ..._SINKEN
+13_Sie ging zum Friseur, um ihre ... zu färben._HAARE
+14_Erika hatte ihre Sonnenbrille nicht auf und das Licht schmerzte in ihren ..._AUGEN
+15_Joseph gefiel seine Kleidung nicht und er beschloss, sich ..._UMZUZIEHEN
+16_Das Pferd lahmte und schien sehr zu ..._LEIDEN
+17_Um Kopfverletzungen zu vermeiden, sollten Radfahrer einen ... tragen._HELM
+18_Um das Bild aufzuhängen, brauchte Theo einen Hammer und ..._NÄGEL
+19_Nach dem Streit rannte Anne in ihr Zimmer und knallte die ..._TÜR
+20_Der Familienvater zerlegte das Huhn mit einem ..._MESSER
+21_Wasser und Sonnenlicht lassen Pflanzen ..._WACHSEN
+22_Wenn sich zwei Menschen begegnen, geben sie sich die ..._HAND
+23_Er warf den Brief ein, ohne die ..._BRIEFMARKE aufzukleben
+24_Sie trug einen Schal um den ..._HALS
+25_Dem billigen Stift ging bald die ... aus._TINTE
+26_Er hatte einen schlechten Tag gehabt und hatte schlechte ..._LAUNE
+27_Sie beendet das Schuljahr als Erste in ihrer ..._KLASSE
+28_Der Athlet hebt gerne Gewichte im ..._FITNESSSTUDIO
+29_Sie wartete auf Jacques' Anruf und hielt Ausschau nach dem Klingeln des ..._TELEPHONES
+30_Das Paket wurde mit der ... verschickt._POST
+31_In der Dusche wusch er sich mit ..._SEIFE
+32_Ein Regenschirm verhindert, dass man ... wird._NASS
+33_Die Schüler gaben ihre Hausaufgaben mit einem Tag ... ab._VERSPÄTUNG
+34_Sie tat so, als hätte sie ihr Schulheft verloren, um ihre schlechten ... zu verbergen._NOTEN
+35_Für sein Rendezvous kaufte Thomas drei schöne ..._BLUMEN
+36_Der gute Geist versprach, drei ... zu erfüllen._WÜNSCHE
+37_Ein Jahr nach dem Tod seiner Mutter besann sich Wilhelm auf ihr ..._GRAB
+38_Kinder, geht nach draußen zum ..._SPIELEN
+39_Der Schulmeister schrieb die Anweisung an die ..._TAFEL
+40_Seine Arbeit war die meiste ... einfach._ZEIT
+41_Im stillen Kinosaal klingelte Kims ..._TELEFON
+42_Es war dunkel im Raum, also schaltete sie das ... an._LICHT
+43_Die kleine Katze spielte mit dem ..._WOLLKNÄUEL
+44_Der Bauer verbrachte den Vormittag damit, seine Kühe zu ..._MELKEN
+45_Nach jeder Mahlzeit ist es gut, sich die ... zu putzen._ZÄHNE
+46_Er brachte seine Angel mit, um ... zu fangen._FISCH
+47_Es war kalt im Zimmer, also schaltete sie die ... ein._HEIZUNG
+48_Da der Raum sehr laut war, musste ich schreien, um ... zu werden._GEHÖRT
+49_Es gab genug Wind, um einen ... steigen zu lassen._DRACHEN
+50_Hélène schätzt Poesie, Malerei und alle Formen der ..._KUNST

@@ -31,7 +31,7 @@ Timing=[BaseTime,CueTime,ResponseTime]
 now=datetime.now()
 now="-".join([str(now.day),str(now.month),str(now.year)])
 Exp=True
-folder_path = os.path.dirname(os.path.abspath(__file__))
+folder_path = os.path.dirname(os.path.absgorypath(__file__))
 Respath= os.path.join(folder_path,'Results')
 
 AudioFiles= os.path.join(folder_path,'AudCatLoc_natsounds165','wav','*.wav')
@@ -112,7 +112,7 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         StimVisual.draw()
         circle.draw()
         mywin.flip()        
-        core.wait(0.01)
+        core.wait(0.05)
         StimVisual.draw()
         circle_gray.draw()
         mywin.flip()

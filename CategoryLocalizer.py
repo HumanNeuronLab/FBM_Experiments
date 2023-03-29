@@ -94,7 +94,7 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         StimVisual.draw()
         circle.draw()
         mywin.flip()
-        core.wait(0.02)
+        core.wait(0.05)
         StimVisual.draw()
         circle_gray.draw()
         mywin.flip()
@@ -115,7 +115,7 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
     core.wait(CueTime-el2)
     duration = time.time()-tic
     sample_offset=str(time.time()+duration)
-    print('¦--- Cue (Image) duration:    '+  str(duration)[0:7]+ '   right: '+ str(CueTime))
+    print('¦--- Cue (Image) duration:    '+  str(duration)[0:7]+ '   right: '+ str(CueTime)) 
 
     ## 3: RESPONSE
     tic=time.time()
