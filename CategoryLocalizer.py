@@ -155,7 +155,7 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
     with open(FileName,"a") as FileData:
         ####################change on#####################################
         # 'onset,duration,trial_type,category,exemplar,response_type,response_time'
-        txt=[str(onset_tic),str(duration)[0:7],trial_type,BlockName,StimNumber,response_type,str(Resp[1])]
+        txt=[str(onset_tic),str(duration)[0:7],trial_type,StimName,StimNumber,response_type,str(Resp[1])]
         # CategoryLocalizer,63,word,1664293981.9973466,0,0
         # txt=[str(BlockName),StimNumber,StimName,str(timeOfRepeat),str(Resp[0]),str(Resp[1])]
         # txt=[str(timeOfRepeat),str(duration)[0:7],TrialNumber,sample_offset,StimName,BlockName,StimNumber,str(Resp[0]),str(Resp[1])]
@@ -192,7 +192,7 @@ while True:
                 with open(FileName,'w') as FileData:
                     FileData.write('\n')
                     FileData.write('sub- : '+SbjNumber+'\n')
-                    FileData.write('task- : LocalizerAud165\n')
+                    FileData.write('task- : LocalizerVisual\n')
                     # txt=[str(BlockName),StimNumber,StimName,str(timeOfRepeat),str(Resp[0]),str(Resp[1])]
                     FileData.write('onset\tduration\ttrial_type\tcategory\texemplar\tresponse_type\tresponse_time')
                     FileData.write('\n')
