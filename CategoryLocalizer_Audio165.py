@@ -31,7 +31,7 @@ Timing=[BaseTime,CueTime,ResponseTime]
 now=datetime.now()
 now="-".join([str(now.day),str(now.month),str(now.year)])
 Exp=True
-folder_path = os.path.dirname(os.path.absgorypath(__file__))
+folder_path = os.path.dirname(os.path.abspath(__file__))
 Respath= os.path.join(folder_path,'Results')
 
 AudioFiles= os.path.join(folder_path,'AudCatLoc_natsounds165','wav','*.wav')
@@ -97,7 +97,7 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
     ResponseTime=Timing[2][0]
     
     ## 1: BASELINE
-    circle_gray.draw()
+    # circle_gray.draw()
     fix.draw()
     mywin.flip()
     el1=time.time()-tic
@@ -112,11 +112,11 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         StimVisual.draw()
         circle.draw()
         mywin.flip()        
-        core.wait(0.05)
-        StimVisual.draw()
-        circle_gray.draw()
-        mywin.flip()
-        # core.wait()
+        # core.wait(0.05)
+        # StimVisual.draw()
+        # circle_gray.draw()
+        # mywin.flip()
+        core.wait(1)
         if WithTriggers == 'Yes':
             port.write(b'v')
         print("¦--- Showing:                ", Stim1, '   Repeat:',isRepeatImage)
@@ -125,10 +125,10 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         StimVisual.draw()
         circle.draw()
         mywin.flip()
-        core.wait(0.05)
-        StimVisual.draw()
-        circle_gray.draw()
-        mywin.flip()
+        # core.wait(0.05)
+        # StimVisual.draw()
+        # circle_gray.draw()
+        # mywin.flip()
         if WithTriggers == 'Yes': port.write(b'b')
         Sound.play()
         core.wait(Sound.getDuration())     
@@ -205,6 +205,7 @@ while True:
     DlgInit.addField("Volume (0-1): ",1)
     DlgInit.addField("PORT (COM): ",'COM3')
     DlgInit.addField("Use serial triggers?: ",choices= ["No","Yes"])
+    DlgInit.addField("Choose screen: ",choices= [0,1,2])
     DlgInit.show()
     InitialData = DlgInit.data
     if DlgInit.OK: # InitialData==['', '', 'M', 'R', 1,'COM9','No']:# Cancel if press
@@ -212,6 +213,7 @@ while True:
         Volume=InitialData[1]
         PortName=InitialData[2]
         WithTriggers=InitialData[3]
+        choice_screen = InitialData[4]
         FileName='sub-'+SbjNumber+'_task-LocalizerAud165_events.tsv'
         FileName=os.path.join(Respath,FileName)
         print(FileName)
@@ -246,7 +248,7 @@ if Exp:
         port.readData
 
     # 0. SETUP WINDOW PROPERTIES
-    mywin=visual.Window([1100,1100], pos=[0,0], monitor="default",waitBlanking=True,units="pix",color='white',fullscr=True,allowGUI=True)
+    mywin = visual.Window([1800,1000], pos=[0,0], monitor="default",screen=choice_screen,waitBlanking=True,units="pix",color='white',fullscr=True,allowGUI=True)
     fix=visual.TextStim(win=mywin,text="+",pos=[0,0], color='black',height=30)
     repeatNum=1 # how many repetitions of each item
 

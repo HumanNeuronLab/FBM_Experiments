@@ -10,6 +10,7 @@ from psychopy import core
 from psychopy import event
 from psychopy import gui
 from psychopy import sound
+import codecs
 import os.path
 import glob
 import time
@@ -48,10 +49,10 @@ for filename in glob.glob(os.path.join(folder_path,'auditory_*')): #assuming gif
 def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=False,isText=False,isSound = False):
     # Exit=onetrial(mywin,s,fix,Timing,FileName,n+1)
     circle = visual.Circle(
-        pos= [-900,480],
+        pos= [-910,490],
         win=mywin,
         units="pix",
-        radius=60,
+        radius=50,
         fillColor=[-1, -1, -1],
         lineColor=[-1, -1, -1]
     )
@@ -83,7 +84,7 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
     ResponseTime=Timing[2][0]
     
     ## 1: BASELINE
-    circle_gray.draw()
+    # circle_gray.draw()
     fix.draw()
     mywin.flip()
     el1=time.time()-tic
@@ -98,11 +99,11 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         StimVisual.draw()
         circle.draw()
         mywin.flip()
-        core.wait(0.01)
-        StimVisual.draw()
-        circle_gray.draw()
-        mywin.flip()
-        # core.wait()
+        # core.wait(0.01)
+        # StimVisual.draw()
+        # circle_gray.draw()
+        # mywin.flip()
+        core.wait(1)
         if WithTriggers == 'Yes':
             port.write(b'v')
         if WithTriggers == 'Yes': port.write(b'a')
@@ -112,10 +113,10 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         StimVisual.draw()
         circle.draw()
         mywin.flip()
-        core.wait(0.05)
-        StimVisual.draw()
-        circle_gray.draw()
-        mywin.flip()
+        # core.wait(0.05)
+        # StimVisual.draw()
+        # circle_gray.draw()
+        # mywin.flip()
         if WithTriggers == 'Yes': port.write(b'c')
         core.wait(3.5)
     else:
@@ -123,10 +124,10 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         StimVisual.draw()
         circle.draw()
         mywin.flip()
-        core.wait(0.05) 
-        StimVisual.draw()
-        circle_gray.draw()
-        mywin.flip()
+        # core.wait(0.05) 
+        # StimVisual.draw()
+        # circle_gray.draw()
+        # mywin.flip()
         if WithTriggers == 'Yes': port.write(b'b')
         Sound.play()
         core.wait(Sound.getDuration()+1)  # TODO why plus one   
@@ -142,17 +143,17 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
     ResponseText.setText(text='?')
     ResponseText.draw()
     mywin.flip()
-    core.wait(0.05)
-    ResponseText.draw()
-    circle_gray.draw()
-    mywin.flip()
+    # core.wait(0.05)
+    # ResponseText.draw()
+    # circle_gray.draw()
+    # mywin.flip()
     if WithTriggers == 'Yes': port.write(b'1')
     if len(event.getKeys(keyList='q'))>0:
         quitnow = True
     
     while True:
 
-        if len(event.getKeys(keyList='space'))>0 or len(event.getKeys(keyList='100'))>0 or len(event.getKeys(keyList='103'))>0: #CORRECT
+        if len(event.getKeys(keyList='space'))>0 or len(event.getKeys(keyList='num_4'))>0 or len(event.getKeys(keyList='103'))>0: #CORRECT
             if WithTriggers == 'Yes': port.write(b'v') 
             trial_type = "go"
             response_type = "correct"
@@ -160,7 +161,7 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
             ReactionTime = time.time()
             ValidTrial = 1
             break        
-        if len(event.getKeys(keyList='x'))>0 or len(event.getKeys(keyList='102'))>0: #WRONG ANSWER
+        if len(event.getKeys(keyList='x'))>0 or len(event.getKeys(keyList='num_6'))>0: #WRONG ANSWER
             trial_type = "go"
             response_type = "wrong"
             duration = time.time()-tic
@@ -168,7 +169,7 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
             if WithTriggers == 'Yes': port.write(b'x')
             ValidTrial = 0 
             break
-        if len(event.getKeys(keyList='n'))>0 or len(event.getKeys(keyList='104'))>0: #NEXT BLOCK
+        if len(event.getKeys(keyList='n'))>0 or len(event.getKeys(keyList='num_8'))>0: #NEXT BLOCK
             trial_type = "go"
             response_type = "wrong"
             ReactionTime = 0
@@ -176,7 +177,7 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
             ValidTrial = 0 
             quitnow = True
             break
-        if len(event.getKeys(keyList='q'))>0 or len(event.getKeys(keyList='105'))>0: #QUICK EXPERIMENT
+        if len(event.getKeys(keyList='q'))>0 or len(event.getKeys(keyList='num_9'))>0: #QUICK EXPERIMENT
             Exp = False
             break
         
@@ -255,7 +256,9 @@ if Exp:
     # Add file paths
     SoundFile= os.path.join(folder_path,'auditory_naming_'+Selected_language,'*.wav')
     ImageFiles= os.path.join(folder_path,'picture_naming','*.png')
-    reading_list = open(os.path.join(folder_path,'reading_completion_'+Selected_language,'reading_comp_'+Selected_language+'.txt')).read().split('\n')
+    reading_list = codecs.open(os.path.join(folder_path,'reading_completion_'+Selected_language,'reading_comp_'+Selected_language+'.txt'),encoding='utf-8')
+    reading_list = reading_list.read().split('\n')
+    # reading_list = open(os.path.join(folder_path,'reading_completion_'+Selected_language,'reading_comp_'+Selected_language+'.txt')).read().split('\n')
     print(choose_language)
 
     image_list = []
@@ -276,13 +279,14 @@ if Exp:
     # 0. Initialize the window
     mywin = visual.Window([1800,1000], pos=[0,0], monitor="default",screen=choice_screen,waitBlanking=True,units="pix",color='white',fullscr=True,allowGUI=True)
     circle_gray = visual.Circle(pos= [-900,480],win=mywin,units="pix",radius=60,fillColor=[0, 0, 0],lineColor=[0, 0, 0]) 
+    circle = visual.Circle(pos= [-900,480],win=mywin,units="pix",radius=60,fillColor=[-1, -1, -1],lineColor=[-1, -1, -1]) 
     fix = visual.TextStim(win=mywin,text="+",pos=[0,0], color='black',height=30)
     repeatNum = 1 # how many repetitions of each item
 
     # 1.1 show intro image
     IntroFile = os.path.join(folder_path,'instructionscreen.png')
     Intro = visual.SimpleImageStim(win=mywin,image=IntroFile)
-    circle_gray.draw()
+    # circle_gray.draw()
     Intro.draw()
     mywin.flip()
     # 1.2 Press SPACE key to continue
@@ -294,7 +298,7 @@ if Exp:
     Exit = False
     IntroText = visual.TextStim(win=mywin,text="",color='black')
     IntroText.setText(text='Picture Naming:\nName the picture when the question mark appears. Lets start with 3 Training examples.\n\nPress x or numpad 6 for bad trial.\nPress space or numpad 4 to continue\nPress n or numpad 8 to skip the block.\nPress q or numpad 9 to quit')
-    circle_gray.draw()
+    # circle_gray.draw()
     IntroText.draw()
     mywin.flip()
 
@@ -315,7 +319,7 @@ if Exp:
     for i in Count:
         CountText.setText(text=i)
         CountText.draw()
-        circle_gray.draw()
+        # circle_gray.draw()
         mywin.flip()
         core.wait(1)
     np.random.shuffle(image_list)
@@ -327,7 +331,7 @@ if Exp:
     ResponseText = visual.TextStim(win=mywin,text="",color='black')
     ResponseText.setText(text='Training has ended. \nPress space to continue')
     ResponseText.draw()   
-    circle_gray.draw()
+    # circle_gray.draw()
     mywin.flip()   
     while True:
         if len(event.getKeys(keyList='space'))>0:
@@ -339,7 +343,7 @@ if Exp:
     for i in Count:
         CountText.setText(text=i)
         CountText.draw()
-        circle_gray.draw()
+        # circle_gray.draw()
         mywin.flip()
         core.wait(1)
 
@@ -356,7 +360,7 @@ if Exp:
     ResponseText=visual.TextStim(win=mywin,text="",color='black')
     ResponseText.setText(text='Picture Naming has ended. \nPress space to continue')
     ResponseText.draw()
-    circle_gray.draw()     
+    # circle_gray.draw()     
     mywin.flip()       
     while True: 
         if len(event.getKeys(keyList='space'))>0: break
@@ -366,7 +370,7 @@ if Exp:
     IntroText = visual.TextStim(win=mywin,text="",color='black')
     IntroText.setText(text='Auditory Naming: \nRespond with the word that best explains the sentence when the question mark appears. We will start with 3 Training examples. \n\nPress x or numpad 6 for bad trial.\nPress space or numpad 4 to continue\nPress n or numpad 8 to skip the block.\nPress q or numpad 9 to quit')
     IntroText.draw()
-    circle_gray.draw()
+    # circle_gray.draw()
     mywin.flip()
     #3.2 Press SPACE key to continue
     while True: 

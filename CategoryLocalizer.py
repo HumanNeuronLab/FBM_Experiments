@@ -31,6 +31,7 @@ Exp=True
 folder_path = os.path.dirname(os.path.abspath(__file__))
 Respath= os.path.join(folder_path,'Results')
 ImageFiles= os.path.join(folder_path,'CatLocalizer_images','*.png')
+print(ImageFiles)
 new_image_list = []
 for filename in glob.glob(ImageFiles): #assuming gif
     new_image_list.append(filename)
@@ -48,10 +49,10 @@ print('¦............ Number of Images:  ', np.size(image_list),'\n')
 def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=False,isRepeatImage=False, timeOfRepeat = 0,start_tic=0):
 
     circle = visual.Circle(
-        pos= [-900,480],
+        pos= [-910,490],
         win=mywin,
         units="pix",
-        radius=60,
+        radius=50,
         fillColor=[-1, -1, -1],
         lineColor=[-1, -1, -1]
     )
@@ -79,7 +80,7 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
     ResponseTime=Timing[2][0]
     
     ## 1: BASELINE
-    circle_gray.draw()
+    # circle_gray.draw()
     fix.draw()
     mywin.flip()
     el1=time.time()-tic
@@ -94,11 +95,11 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         StimVisual.draw()
         circle.draw()
         mywin.flip()
-        core.wait(0.05)
-        StimVisual.draw()
-        circle_gray.draw()
-        mywin.flip()
-        # core. wait()
+        # core.wait(0.05)
+        # StimVisual.draw()
+        # circle_gray.draw()
+        # mywin.flip()
+        core.wait(1)
         if WithTriggers == 'Yes':
             port.write(b'v')
         print("¦--- Showing:                ", Stim1, '   Repeat:',isRepeatImage)
@@ -172,6 +173,7 @@ while True:
     DlgInit.addField("Volume (0-1): ",1)
     DlgInit.addField("PORT (COM): ",'COM3')
     DlgInit.addField("Use serial triggers?: ",choices= ["No","Yes"])
+    DlgInit.addField("Choose screen: ",choices= [0,1,2])
     DlgInit.show()
     InitialData = DlgInit.data
     if DlgInit.OK: # InitialData==['', '', 'M', 'R', 1,'COM9','No']:# Cancel if press
@@ -179,6 +181,7 @@ while True:
         Volume=InitialData[1]
         PortName=InitialData[2]
         WithTriggers=InitialData[3]
+        choice_screen = InitialData[4]
         FileName='sub-'+SbjNumber+'_task-LocalizerVisual_events.tsv'
         FileName=os.path.join(Respath,FileName)
         print(FileName)
@@ -213,7 +216,7 @@ if Exp:
         port.readData
 
     # 0. SETUP WINDOW PROPERTIES
-    mywin=visual.Window([1100,1100], pos=[0,0], monitor="default",waitBlanking=True,units="pix",color='white',fullscr=True,allowGUI=True)
+    mywin = visual.Window([1800,1000], pos=[0,0], monitor="default",screen=choice_screen,waitBlanking=True,units="pix",color='white',fullscr=True,allowGUI=True)
     fix=visual.TextStim(win=mywin,text="+",pos=[0,0], color='black',height=30)
     repeatNum=1 # how many repetitions of each item
 
@@ -258,7 +261,7 @@ if Exp:
     for i,s in enumerate(image_list):
         if Exit or len(event.getKeys(keyList='q'))>0: break
         print('\nTrial '+str(i+1)+'¦ ')
-        Exit,timeOfRepeat, ReactTime=onetrial(mywin,s,fix,Timing,FileName,i+1,0,isImage=False, isRepeatImage=repeatIndex[i],timeOfRepeat=timeOfRepeat,start_tic=start_tic)
+        Exit,timeOfRepeat, ReactTime=onetrial(mywin,s,fix,Timing,FileName,i+1,0,isImage=True, isRepeatImage=repeatIndex[i],timeOfRepeat=timeOfRepeat,start_tic=start_tic)
         print(timeOfRepeat,ReactTime)
         # Exit=onetrial(mywin,s,fix,Timing,FileName,i+1,0,isImage=True,save=False)
 
