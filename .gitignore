@@ -4,3 +4,4 @@ source/
 temp/
 freetype.dll
 *.exe
+*.zip
