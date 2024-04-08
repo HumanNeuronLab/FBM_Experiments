@@ -2,6 +2,7 @@ build/
 libusb-1.0.24/
 source/
 temp/
-freetype.dll
+*.dll
 *.exe
 *.zip
+*.pkg
