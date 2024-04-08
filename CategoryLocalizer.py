@@ -16,31 +16,60 @@ import time
 import serial
 from pyo import *
 
+## TODO: change the baseline used 
+
 ###   Detials CHANGE TEXT FILE NAMES
 # Define the hardcoded values
 psychopy.prefs.hardware['audioLib'] = ['PTB', 'sounddevice','pyo','pygame']
 Center = [0,0]
-BaseTime=[0.2,0.3,0.4,0.5]
-CueTime=[0.8,1,1.2,1.5] #Test
+BaseTime=[0.8, 0.9, 1, 1.1]
+# BaseTime=[0.5, 0.6, 0.7, 0.8]
+CueTime=[0.8] #Test
 
 ResponseTime=[2] #official
 Timing=[BaseTime,CueTime,ResponseTime]
 now=datetime.now()
+timestamp = str(now.hour)+'h'+str(now.minute)+'m'+str(now.second)+'s'
 now="-".join([str(now.day),str(now.month),str(now.year)])
 Exp=True
 folder_path = os.path.dirname(os.path.abspath(__file__))
 Respath= os.path.join(folder_path,'Results')
 ImageFiles= os.path.join(folder_path,'CatLocalizer_images','*.png')
-print(ImageFiles)
-new_image_list = []
-for filename in glob.glob(ImageFiles): #assuming gif
-    new_image_list.append(filename)
 
-new_image_list.sort()
+ImageFiles_scrambled= os.path.join(folder_path,'CatLocalizer_images','scrambled*.png')
+ImageFiles_word= os.path.join(folder_path,'CatLocalizer_images','word*.png')
+ImageFiles_corridor= os.path.join(folder_path,'CatLocalizer_images','corridor*.png')
+ImageFiles_child= os.path.join(folder_path,'CatLocalizer_images','child*.png')
+ImageFiles_car= os.path.join(folder_path,'CatLocalizer_images','car*.png')
+ImageFiles_body= os.path.join(folder_path,'CatLocalizer_images','body*.png')
+ImageFiles_adult= os.path.join(folder_path,'CatLocalizer_images','adult*.png')
+ImageFiles_number= os.path.join(folder_path,'CatLocalizer_images','number*.png')
+ImageFiles_limb= os.path.join(folder_path,'CatLocalizer_images','limb*.png')
+ImageFiles_instrument= os.path.join(folder_path,'CatLocalizer_images','instrument*.png')
+
+
 image_list = []
-for i in range(0,len(new_image_list),144):
-    image_list.append(random.sample(new_image_list[i:i+144],k=30))
-image_list = [item for sublist in image_list for item in sublist]# Display relevant information
+image_list.append(random.sample(glob.glob(ImageFiles_scrambled),k=30))
+image_list.append(random.sample(glob.glob(ImageFiles_word),k=30))
+image_list.append(random.sample(glob.glob(ImageFiles_corridor),k=30))
+image_list.append(random.sample(glob.glob(ImageFiles_child),k=30))
+image_list.append(random.sample(glob.glob(ImageFiles_car),k=30))
+image_list.append(random.sample(glob.glob(ImageFiles_body),k=30))
+image_list.append(random.sample(glob.glob(ImageFiles_adult),k=30))
+image_list.append(random.sample(glob.glob(ImageFiles_number),k=30))
+image_list.append(random.sample(glob.glob(ImageFiles_instrument),k=30))
+image_list = [item for sublist in image_list for item in sublist] # flattens list
+
+
+# print(ImageFiles)
+# new_image_list = []
+# for filename in glob.glob(ImageFiles): #assuming gif
+#     new_image_list.append(filename)
+
+# new_image_list.sort()
+# image_list = []
+# for i in range(0,len(new_image_list),144):
+#     image_list.append(random.sample(new_image_list[i:i+144],k=30))
 print('¦...... Folder Used is:  ', folder_path)
 print('¦............ Number of Images:  ', np.size(image_list),'\n')
 
@@ -49,22 +78,15 @@ print('¦............ Number of Images:  ', np.size(image_list),'\n')
 def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=False,isRepeatImage=False, timeOfRepeat = 0,start_tic=0):
 
     circle = visual.Circle(
-        pos= [-910,490],
+        pos= [(-1*disp_size[0]/2)+30,disp_size[1]/2-30],
         win=mywin,
         units="pix",
-        radius=50,
+        radius=30,
         fillColor=[-1, -1, -1],
         lineColor=[-1, -1, -1]
     )
 
-    circle_gray = visual.Circle(
-        pos= [-900,480],
-        win=mywin,
-        units="pix",
-        radius=60,
-        fillColor=[0, 0, 0],
-        lineColor=[0, 0, 0]
-    )    
+ 
     
     quitnow=False
     tic=time.time()
@@ -121,12 +143,12 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
     ## 3: RESPONSE
     tic=time.time()
     mywin.flip()
-    if len(event.getKeys(keyList='q'))>0:
+    if len(event.getKeys(keyList='q'))>0 or len(event.getKeys(keyList='num_9'))>0:
         quitnow = True
 
     
     # Save to txt file
-    if len(event.getKeys(keyList='space'))>0:
+    if len(event.getKeys(keyList='space'))>0 or len(event.getKeys(keyList='num_4'))>0: #CORRECT
         if WithTriggers == 'Yes': port.write(b'v') 
         duration = time.time()-tic
         ReactionTime = time.time()
@@ -155,7 +177,7 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
     with open(FileName,"a") as FileData:
         ####################change on#####################################
         # 'onset,duration,trial_type,category,exemplar,response_type,response_time'
-        txt=[str(onset_tic),str(duration)[0:7],trial_type,StimName,StimNumber,response_type,str(Resp[1])]
+        txt=[str(onset_tic)[0:10],str(duration)[0:7],trial_type,StimName,StimNumber,response_type,str(Resp[1])]
         # CategoryLocalizer,63,word,1664293981.9973466,0,0
         # txt=[str(BlockName),StimNumber,StimName,str(timeOfRepeat),str(Resp[0]),str(Resp[1])]
         # txt=[str(timeOfRepeat),str(duration)[0:7],TrialNumber,sample_offset,StimName,BlockName,StimNumber,str(Resp[0]),str(Resp[1])]
@@ -174,6 +196,7 @@ while True:
     DlgInit.addField("PORT (COM): ",'COM3')
     DlgInit.addField("Use serial triggers?: ",choices= ["No","Yes"])
     DlgInit.addField("Choose screen: ",choices= [0,1,2])
+    DlgInit.addField("Display resolution: ",choices= [[1920,1080],[1800,800],[1280,1024]])
     DlgInit.show()
     InitialData = DlgInit.data
     if DlgInit.OK: # InitialData==['', '', 'M', 'R', 1,'COM9','No']:# Cancel if press
@@ -182,8 +205,9 @@ while True:
         PortName=InitialData[2]
         WithTriggers=InitialData[3]
         choice_screen = InitialData[4]
-        FileName='sub-'+SbjNumber+'_task-LocalizerVisual_events.tsv'
+        FileName='sub-'+SbjNumber+'_task-LocalizerVisual_timestamp-'+ now +'('+timestamp+')_events.tsv'
         FileName=os.path.join(Respath,FileName)
+        disp_size = InitialData[5]
         print(FileName)
         if os.path.isfile(FileName):
             DlgFile = gui.wx.MessageDialog(None,"File exist. Do you want to continue or define other parameters(yes) or overwrite file(no)",style=gui.wx.YES|gui.wx.NO|gui.wx.ICON_QUESTION)
@@ -216,23 +240,23 @@ if Exp:
         port.readData
 
     # 0. SETUP WINDOW PROPERTIES
-    mywin = visual.Window([1800,1000], pos=[0,0], monitor="default",screen=choice_screen,waitBlanking=True,units="pix",color='white',fullscr=True,allowGUI=True)
+    mywin = visual.Window(disp_size, pos=[0,0], monitor="default",screen=choice_screen,waitBlanking=True,units="pix",color='white',fullscr=True,allowGUI=True)
     fix=visual.TextStim(win=mywin,text="+",pos=[0,0], color='black',height=30)
     repeatNum=1 # how many repetitions of each item
 
     # 1. INTRODUCTION
     Exit=False
     IntroText=visual.TextStim(win=mywin,text="",color='black')
-    IntroText.setText(text='Category Localizer Visual:\n\n Press SPACE BAR when you see a repeating image. \n\nPress q to quit')
+    IntroText.setText(text='Category Localizer Visual:\n\n Press SPACE BAR or numpad 4 when you see a repeating image. \n\nPress q to quit')
     IntroText.draw()
     mywin.flip()
     #Press SPACE key to continue
     while True:
-        if len(event.getKeys(keyList='space'))>0: break
+        if len(event.getKeys(keyList='space'))>0 or len(event.getKeys(keyList='num_4'))>0: break
 
     # 2. EXPERIMENT
     CountText=visual.TextStim(win=mywin,text="",color='black')
-    Count=[3,2,1]
+    Count=[3,2,1] 
     for i in Count:
         CountText.setText(text=i)
         CountText.draw()
@@ -271,5 +295,5 @@ if Exp:
     ResponseText.draw()     
     mywin.flip()       
     while True:
-            if len(event.getKeys(keyList='space'))>0:
+            if len(event.getKeys(keyList='space'))>0 or len(event.getKeys(keyList='num_4'))>0:
                 break

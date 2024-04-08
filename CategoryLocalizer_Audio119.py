@@ -14,6 +14,7 @@ import os.path
 import glob
 import time
 from pyo import *
+import serial
 
 ###   Detials
 
@@ -21,35 +22,49 @@ from pyo import *
 # Define the hardcoded values
 psychopy.prefs.hardware['audioLib'] = ['PTB', 'sounddevice','pyo','pygame']
 Center = [0,0]
-BaseTime=[0.2,0.3,0.4,0.5]
-CueTime=[0.8,1,1.2,1.5] #Test
-# Center = [0,0]
-# BaseTime=[1.2,1.3,1.4,1.5]
-# CueTime=[1.8,2,2.2,2.5] #Test
+# BaseTime=[0.6, 0.7, 0.8, 0.9]
+BaseTime=[0.8, 0.9, 1, 1.1]
+CueTime=[4] #Test
+
 ResponseTime=[2] #official
 Timing=[BaseTime,CueTime,ResponseTime]
 now=datetime.now()
+timestamp = str(now.hour)+'h'+str(now.minute)+'m'+str(now.second)+'s'
 now="-".join([str(now.day),str(now.month),str(now.year)])
 Exp=True
 folder_path = os.path.dirname(os.path.abspath(__file__))
 Respath= os.path.join(folder_path,'Results')
+
 AudioFiles= os.path.join(folder_path,'AudCatLoc_natsounds119','*.wav')
 print(AudioFiles)
+
 new_audio_list = []
 for filename in glob.glob(AudioFiles): #assuming gif
     new_audio_list.append(filename)
 
 new_audio_list.sort()
 audio_list = []
-for i in range(0,len(new_audio_list),119):
-    audio_list.append(random.sample(new_audio_list[i:i+119],k=119))
+
+
+for i in range(0,len(new_audio_list),len(new_audio_list)):
+    audio_list.append(random.sample(new_audio_list[i:i+len(new_audio_list)],k=len(new_audio_list)))
 audio_list = [item for sublist in audio_list for item in sublist]# Display relevant information
 print('¦...... Folder Used is:  ', folder_path)
 print('¦............ Number of Sounds:  ', np.size(audio_list))
 
 
 # function ONETRIAL
-def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=False,isRepeatImage=False, timeOfRepeat = 0):
+def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=False,isRepeatImage=False, timeOfRepeat = 0, start_tic=0):
+    
+    circle = visual.Circle(
+        pos= [(-1*disp_size[0]/2)+30,disp_size[1]/2-30],
+        win=mywin,
+        units="pix",
+        radius=30,
+        fillColor=[-1, -1, -1],
+        lineColor=[-1, -1, -1]
+    )
+    
     quitnow=False
     tic=time.time()
     # event.clearEvents(eventType=None)
@@ -74,28 +89,20 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
 
     ## 2: CUE
     tic=time.time()
+    onset_tic = tic - start_tic
 
-    circle = visual.Circle(
-        pos= [-880,460],
-        win=mywin,
-        units="pix",
-        radius=80,
-        fillColor=[-1, -1, -1],
-        lineColor=[-1, -1, -1]
-    )
-    
+
+
     if isImage: # if image
-        StimVisual=visual.SimpleImageStim(win=mywin,image=Stim)
-        StimVisual.draw()
         circle.draw()
+        fix.draw()
         mywin.flip()
         if WithTriggers == 'Yes':
             port.write(b'v')
         print("¦--- Showing:                ", Stim1, '   Repeat:',isRepeatImage)
     else:
-        StimVisual=visual.SimpleImageStim(win=mywin,image=os.path.join(folder_path,'audio_icon.png'))
-        StimVisual.draw()
         circle.draw()
+        fix.draw()
         mywin.flip()
         if WithTriggers == 'Yes': port.write(b'b')
         Sound.play()
@@ -115,59 +122,77 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
 
     el2=time.time()-tic
     core.wait(CueTime-el2)
-    print('¦--- Cue (Image) duration:    '+  str(time.time()-tic)[0:7]+ '   right: '+ str(CueTime))
+    duration = time.time()-tic
+
+    print('¦--- Cue (Image) duration:    '+  str(duration)[0:7]+ '   right: '+ str(CueTime))
 
     ## 3: RESPONSE
     tic=time.time()
+    fix.draw()
     mywin.flip()
 
-    if len(event.getKeys(keyList='q'))>0:
+    if len(event.getKeys(keyList='q'))>0 or len(event.getKeys(keyList='num_9'))>0 :
         quitnow = True
 
 
     # Save to txt file
-    if len(event.getKeys(keyList='space'))>0:
+    if len(event.getKeys(keyList='space'))>0 or len(event.getKeys(keyList='num_4'))>0  :
+        if WithTriggers == 'Yes': port.write(b'v') 
+        duration = time.time()-tic
         ReactionTime = time.time()
+        sample_offset=str(time.time()+duration)
         if WithTriggers == 'Yes':
             port.write(b'b')
 
     if (ReactionTime == 0 and timeOfRepeat == 0) or (ReactionTime != 0 and timeOfRepeat != 0):
         ValidTrial=1
+    
+    if timeOfRepeat !=0:
+        trial_type="go"
+        if ReactionTime == 0:
+            response_type = "miss"
+        else: 
+            response_type = "hit"
+    else:
+        trial_type="no_go"
+        if ReactionTime == 0:
+            response_type="correct_rejection"
+        else: 
+            response_type = "false_alarm"
+
     Resp=[ValidTrial,ReactionTime]
     with open(FileName,"a") as FileData:
         ####################change on#####################################
         txt=[str(BlockName),StimNumber,StimName,str(timeOfRepeat),str(Resp[0]),str(Resp[1])]
+        txt=[str(onset_tic)[0:10],str(duration)[0:7],trial_type,StimName,StimNumber,response_type,str(Resp[1])]
         #####################change off ####################################
         txt=[str(t) for t in txt]
-        FileData.write(",".join(txt))
+        FileData.write("\t".join(txt))
         FileData.write('\n')
 
     return quitnow, timeOfRepeat, ReactionTime
 
 # SETUP THE START-UP GUI
 while True:
-    DlgInit = gui.Dlg(title="Functional Language Mapping Initialisation")
+    DlgInit = gui.Dlg(title="Category Localizer (Audio119) Initialisation")
     DlgInit.addField("Subject ID:")
-    DlgInit.addField("Age:")
-    DlgInit.addField('Sex:', choices=["M", "F"])
-    DlgInit.addField('handedness:', choices=["R", "L"])
-    DlgInit.addField("Volume (0-1): ",0.5)
+    DlgInit.addField("Volume (0-1): ",1)
     DlgInit.addField("PORT (COM): ",'COM3')
-    DlgInit.addField("Use triggers?: ",choices=["Yes", "No"])
+    DlgInit.addField("Use serial triggers?: ",choices= ["No","Yes"])
+    DlgInit.addField("Choose screen: ",choices= [0,1,2])
+    DlgInit.addField("Display resolution: ",choices= [[1920,1080],[1800,800],[1280,1024]])
     DlgInit.show()
     InitialData = DlgInit.data
-    if InitialData==['', '', 'M', 'R', 0.5,'COM3']:# Cancel if press
-        Exp=False
-        break
-    else:
+    if DlgInit.OK: # InitialData==['', '', 'M', 'R', 1,'COM9','No']:# Cancel if press
         SbjNumber=InitialData[0]
-        Age=InitialData[1]
-        Sex=InitialData[2]
-        Handedness=InitialData[3]
-        Volume=InitialData[4]
-        PortName=InitialData[5]
-        WithTriggers=InitialData[6]
-        FileName=SbjNumber+'_CategoryLocalizer_' + now + '.txt'
+        Volume=InitialData[1]
+        PortName=InitialData[2]
+        WithTriggers=InitialData[3]
+        choice_screen = InitialData[4]
+        FileName='sub-'+SbjNumber+'_task-LocalizerAud165_timestamp-'+ now +'('+timestamp+')_events.tsv'
+        FileName=os.path.join(Respath,FileName)
+        disp_size = InitialData[5]
+
         FileName=os.path.join(Respath,FileName)
         print(FileName)
         if os.path.isfile(FileName):
@@ -176,25 +201,23 @@ while True:
             if Resp == 5103:
                 with open(FileName,'w') as FileData:
                     FileData.write('\n')
-                    FileData.write('SubjectNumber : '+SbjNumber+'\n')
-                    FileData.write('Sex : '+Sex+'\n')
-                    FileData.write('Age : '+Age+'\n')
-                    FileData.write('Handedness : '+Handedness+'\n')
+                    FileData.write('sub- : '+SbjNumber+'\n')
+                    FileData.write('task- : LocalizerAud165\n')
                     # txt=[str(BlockName),StimNumber,StimName,str(timeOfRepeat),str(Resp[0]),str(Resp[1])]
-                    FileData.write('BlockName,StimNumber,StimName,RepeatedImageTime,ValidTrial,ResponseTime')
+                    FileData.write('onset\tduration\ttrial_type\tcategory\texemplar\tresponse_type\tresponse_time')
                     FileData.write('\n')
                 break
         else:
             with open(FileName,'w') as FileData:
                 FileData.write('SubjectNumber : '+SbjNumber+'\n')
-                FileData.write('Sex : '+Sex+'\n')
-                FileData.write('Age : '+Age+'\n')
-                FileData.write('Handedness : '+Handedness+'\n')
                 ######################change on #################################
-                FileData.write('BlockName,StimNumber,StimName,RepeatedImageTime,ValidTrial,ResponseTime')
+                FileData.write('onset\tduration\ttrial_type\tcategory\texemplar\tresponse_type\tresponse_time')
                 ######################change off#################################
                 FileData.write('\n')
             break
+    else:
+        Exp=False
+        break
 
 # START THE EXPERIMENT
 if Exp:
@@ -203,19 +226,21 @@ if Exp:
         port.readData
 
     # 0. SETUP WINDOW PROPERTIES
-    mywin=visual.Window([1100,1100], pos=[0,0], monitor="default",waitBlanking=True,units="pix",color='white',fullscr=True,allowGUI=True)
+    mywin=visual.Window(disp_size, pos=[0,0], monitor="default", screen=choice_screen,waitBlanking=True,units="pix",color='white',fullscr=True,allowGUI=True)
     fix=visual.TextStim(win=mywin,text="+",pos=[0,0], color='black',height=30)
     repeatNum=1 # how many repetitions of each item
 
     # 1. INTRODUCTION
     Exit=False
     IntroText=visual.TextStim(win=mywin,text="",color='black')
-    IntroText.setText(text='Category Localizer:\n\n Press SPACE BAR when you see a repeating image. \n\nPress q to quit')
+    IntroText.setText(text='Category Localizer Audio 119:\n\n Press SPACE BAR or numpad 4 when you see a repeating sound. \n\nPress q or numpad 9 to quit')
     IntroText.draw()
     mywin.flip()
     #Press SPACE key to continue
     while True:
-        if len(event.getKeys(keyList='space'))>0: break
+        if len(event.getKeys(keyList='space'))>0 or len(event.getKeys(keyList='num_4'))>0: break
+        if len(event.getKeys(keyList='q'))>0 or len(event.getKeys(keyList='num_9'))>0:
+            exit()
 
     # 2. EXPERIMENT
     CountText=visual.TextStim(win=mywin,text="",color='black')
@@ -226,35 +251,39 @@ if Exp:
         mywin.flip()
         core.wait(1)
     
+    print('Repeats:')
+
     #  Insert the random image repetition
     np.random.shuffle(audio_list)
     repeatIndex = [False for i in range(len(audio_list))]
-    new_i=random.randrange(5,16)
+    new_i=random.randrange(4,14)
     old_audio_list = audio_list
     for i,item in enumerate(old_audio_list):
         if i <new_i:
             continue
-        rand_index = random.randrange(5,16)
-        print(i, new_i, rand_index)
-        print(' ')
+        rand_index = random.randrange(4,14)
         audio_list.insert(i,audio_list[i-1])
         repeatIndex.insert(i,True)
         new_i=i+rand_index
-
+    onset=time.time()
     timeOfRepeat=0
     ReactTime=0
+    start_tic=time.time()
+    
     for i,s in enumerate(audio_list):
-        if Exit or len(event.getKeys(keyList='q'))>0: break
+        if Exit or len(event.getKeys(keyList='q'))>0 or len(event.getKeys(keyList='num_9'))>0: break
         print('\nTrial '+str(i+1)+'¦ ')
-        Exit,timeOfRepeat, ReactTime=onetrial(mywin,s,fix,Timing,FileName,i+1,0,isImage=False, isRepeatImage=repeatIndex[i],timeOfRepeat=timeOfRepeat)
+        Exit,timeOfRepeat, ReactTime=onetrial(mywin,s,fix,Timing,FileName,i+1,0,isImage=False, isRepeatImage=repeatIndex[i],timeOfRepeat=timeOfRepeat,start_tic=start_tic)
         print(timeOfRepeat,ReactTime)
         # Exit=onetrial(mywin,s,fix,Timing,FileName,i+1,0,isImage=True,save=False)
 
     # 3. END OF TASK
-    ResponseText=visual.TextStim(win=mywin,text="",color='black',height=50)
-    ResponseText.setText(text='Congrats!!!! \nYou are done!!!\n\nPress SPACE BAR to end the experiment')
+    ResponseText=visual.TextStim(win=mywin,text="",color='black',height=20)
+    ResponseText.setText(text='Congrats! \nYou are done!\n\nPress SPACE BAR to end the experiment \n\nData saved as: \n...'+ FileName[-50:-1])
     ResponseText.draw()     
     mywin.flip()       
     while True:
-            if len(event.getKeys(keyList='space'))>0:
+            if len(event.getKeys(keyList='space'))>0 or len(event.getKeys(keyList='num_4'))>0:
                 break
+            if len(event.getKeys(keyList='q'))>0 or len(event.getKeys(keyList='num_9'))>0:
+                exit()

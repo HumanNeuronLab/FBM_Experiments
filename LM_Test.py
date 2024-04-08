@@ -19,23 +19,18 @@ from pyo import *
 
 ###   Detials
 
-## TODO: Change folder infromation 
-# DONE
-## TODO: Change automatically the language of the task (Or Select? Dropdown menu)
-# DONE
-## TODO: Option to change the window: Select current or extended window 
-
-
 # Define the hardcoded values
 psychopy.prefs.hardware['audioLib'] = ['PTB', 'sounddevice','pyo','pygame']
 Center = [0,0]
-BaseTime=[0.8,1,1.2,1.5]
+BaseTime=[1.1,1.2,1.3,1.4]
 CueTime=[1] # Official
 ResponseTime=[2] # Official
+
 Timing=[BaseTime,CueTime,ResponseTime]
 now=datetime.now()
 timestamp = str(now.hour)+'h'+str(now.minute)+'m'+str(now.second)+'s'
 now="-".join([str(now.day),str(now.month),str(now.year)])
+
 Exp=True
 folder_path = os.path.dirname(os.path.abspath(__file__))
 print(folder_path)
@@ -46,25 +41,18 @@ choose_language=[]
 for filename in glob.glob(os.path.join(folder_path,'auditory_*')): #assuming gif
     choose_language.append(filename[-3:])
 
-def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=False,isText=False,isSound = False):
+def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=False,isText=False,isSound=False):
     # Exit=onetrial(mywin,s,fix,Timing,FileName,n+1)
     circle = visual.Circle(
-        pos= [-910,490],
+        pos= [(-1*disp_size[0]/2)+40,disp_size[1]/2-40],
         win=mywin,
         units="pix",
-        radius=50,
+        radius=60,
         fillColor=[-1, -1, -1],
         lineColor=[-1, -1, -1]
     )
 
-    circle_gray = visual.Circle(
-        pos= [-900,480],
-        win=mywin,
-        units="pix",
-        radius=60,
-        fillColor=[0, 0, 0],
-        lineColor=[0, 0, 0]
-    )    
+
     quitnow=False
     tic=time.time()
     event.clearEvents(eventType=None)
@@ -99,10 +87,7 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         StimVisual.draw()
         circle.draw()
         mywin.flip()
-        # core.wait(0.01)
-        # StimVisual.draw()
-        # circle_gray.draw()
-        # mywin.flip()
+
         core.wait(1)
         if WithTriggers == 'Yes':
             port.write(b'v')
@@ -113,21 +98,17 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         StimVisual.draw()
         circle.draw()
         mywin.flip()
-        # core.wait(0.05)
-        # StimVisual.draw()
-        # circle_gray.draw()
-        # mywin.flip()
+
         if WithTriggers == 'Yes': port.write(b'c')
-        core.wait(3.5)
+        if Selected_language=="GER":
+            core.wait(5.5)
+
+        else: 
+            core.wait(3.5)
     else:
-        StimVisual=visual.SimpleImageStim(win=mywin,image=os.path.join(folder_path,'listen_icon.png'))
-        StimVisual.draw()
+        fix.draw() 
         circle.draw()
         mywin.flip()
-        # core.wait(0.05) 
-        # StimVisual.draw()
-        # circle_gray.draw()
-        # mywin.flip()
         if WithTriggers == 'Yes': port.write(b'b')
         Sound.play()
         core.wait(Sound.getDuration()+1)  # TODO why plus one   
@@ -139,16 +120,13 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
 
     ## 3: RESPONSE
     tic=time.time()
-    ResponseText=visual.TextStim(win=mywin,text="",color='black',height=100)
+    ResponseText=visual.TextStim(win=mywin,text="",color='black',height=40)
     ResponseText.setText(text='?')
     ResponseText.draw()
     mywin.flip()
-    # core.wait(0.05)
-    # ResponseText.draw()
-    # circle_gray.draw()
-    # mywin.flip()
+
     if WithTriggers == 'Yes': port.write(b'1')
-    if len(event.getKeys(keyList='q'))>0:
+    if len(event.getKeys(keyList='q'))>0 or len(event.getKeys(keyList='num_9'))>0:
         quitnow = True
     
     while True:
@@ -178,7 +156,13 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
             quitnow = True
             break
         if len(event.getKeys(keyList='q'))>0 or len(event.getKeys(keyList='num_9'))>0: #QUICK EXPERIMENT
+            trial_type = "go"
+            response_type = "wrong"
+            ReactionTime = 0
+            duration = 0
+            ValidTrial = 0 
             Exp = False
+            quitnow = True
             break
         
         duration = time.time()-tic
@@ -194,14 +178,13 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
     with open(FileName,"a") as FileData:
         ####################change on#####################################
         # 'onset,duration,trial_type,category,exemplar,response_type,response_time'
-        txt=[str(onset_tic),str(duration)[0:7],trial_type,BlockName,StimNumber,response_type,str(Resp[1])]
+        txt=[str(onset_tic)[0:10],str(duration)[0:7],trial_type,BlockName,StimNumber,response_type,str(Resp[1])]
         # CategoryLocalizer,63,word,1664293981.9973466,0,0
         # txt=[str(BlockName),StimNumber,StimName,str(timeOfRepeat),str(Resp[0]),str(Resp[1])]
         #####################change off ####################################
         txt=[str(t) for t in txt]
         FileData.write("\t".join(txt))
         FileData.write('\n')
-
     return quitnow
 
 
@@ -213,6 +196,7 @@ while True:
     DlgInit.addField("Use serial triggers?: ",choices= ["No","Yes"])
     DlgInit.addField("Choose language: ",choices= choose_language)
     DlgInit.addField("Choose screen: ",choices= [0,1,2])
+    DlgInit.addField("Display resolution: ",choices= [[1920,1080],[1800,800],[1280,1024]])
     DlgInit.show()
     InitialData = DlgInit.data
     if DlgInit.OK: # InitialData==['', '', 'M', 'R', 1,'COM9','No']:# Cancel if press
@@ -225,7 +209,7 @@ while True:
         FileName='sub-'+SbjNumber+'_task-LanguageMapping_timestamp-'+ now +'('+timestamp+')_lang-'+Selected_language+'_events.tsv'
         print(FileName)
         FileName=os.path.join(Respath,FileName)
-        print(FileName)
+        disp_size = InitialData[6]
         if os.path.isfile(FileName):
             DlgFile = gui.wx.MessageDialog(None,"File exist. Do you want to continue or define other parameters(yes) or overwrite file(no)",style=gui.wx.YES|gui.wx.NO|gui.wx.ICON_QUESTION)
             Resp=DlgFile.ShowModal()
@@ -277,7 +261,7 @@ if Exp:
         port.readData
 
     # 0. Initialize the window
-    mywin = visual.Window([1800,1000], pos=[0,0], monitor="default",screen=choice_screen,waitBlanking=True,units="pix",color='white',fullscr=True,allowGUI=True)
+    mywin = visual.Window(disp_size, pos=[0,0], monitor="default",screen=choice_screen,waitBlanking=True,units="pix",color='white',fullscr=True,allowGUI=True)
     circle_gray = visual.Circle(pos= [-900,480],win=mywin,units="pix",radius=60,fillColor=[0, 0, 0],lineColor=[0, 0, 0]) 
     circle = visual.Circle(pos= [-900,480],win=mywin,units="pix",radius=60,fillColor=[-1, -1, -1],lineColor=[-1, -1, -1]) 
     fix = visual.TextStim(win=mywin,text="+",pos=[0,0], color='black',height=30)
@@ -291,8 +275,10 @@ if Exp:
     mywin.flip()
     # 1.2 Press SPACE key to continue
     while True:
-        if len(event.getKeys(keyList='space'))>0:
+        if len(event.getKeys(keyList='space'))>0 or len(event.getKeys(keyList='num_4'))>0:
             break
+        if len(event.getKeys(keyList='q'))>0 or len(event.getKeys(keyList='num_9'))>0:
+            exit()
 
     # 2.1 Picture Naming Block
     Exit = False
@@ -306,8 +292,11 @@ if Exp:
 
     #2.2 Press SPACE key to continue
     while True:
-        if len(event.getKeys(keyList='space'))>0:
+        if len(event.getKeys(keyList='space'))>0 or len(event.getKeys(keyList='num_4'))>0:
             break
+        if len(event.getKeys(keyList='q'))>0 or len(event.getKeys(keyList='num_9'))>0:
+            exit()
+
     start_tic = time.time()
     onset = time.time()
     timeOfRepeat = 0
@@ -334,8 +323,10 @@ if Exp:
     # circle_gray.draw()
     mywin.flip()   
     while True:
-        if len(event.getKeys(keyList='space'))>0:
+        if len(event.getKeys(keyList='space'))>0 or len(event.getKeys(keyList='num_4'))>0:
             break
+        if len(event.getKeys(keyList='q'))>0 or len(event.getKeys(keyList='num_9'))>0:
+            exit()
 
     # 2.3 Countdown
     CountText = visual.TextStim(win=mywin,text="",color='black')
@@ -362,8 +353,11 @@ if Exp:
     ResponseText.draw()
     # circle_gray.draw()     
     mywin.flip()       
-    while True: 
-        if len(event.getKeys(keyList='space'))>0: break
+    while True:
+        if len(event.getKeys(keyList='space'))>0 or len(event.getKeys(keyList='num_4'))>0:
+            break
+        if len(event.getKeys(keyList='q'))>0 or len(event.getKeys(keyList='num_9'))>0:
+            exit()
 
     # 3.1 AUDIO Naming Block
     Exit = False
@@ -373,8 +367,11 @@ if Exp:
     # circle_gray.draw()
     mywin.flip()
     #3.2 Press SPACE key to continue
-    while True: 
-        if len(event.getKeys(keyList='space'))>0: break
+    while True:
+        if len(event.getKeys(keyList='space'))>0 or len(event.getKeys(keyList='num_4'))>0:
+            break
+        if len(event.getKeys(keyList='q'))>0 or len(event.getKeys(keyList='num_9'))>0:
+            exit()
 
     # 3.3 AUDIO naming: Loops for repeatNum times
     for n in range(repeatNum):
@@ -389,8 +386,10 @@ if Exp:
     ResponseText.draw()     
     mywin.flip()   
     while True:
-        if len(event.getKeys(keyList='space'))>0:
+        if len(event.getKeys(keyList='space'))>0 or len(event.getKeys(keyList='num_4'))>0:
             break
+        if len(event.getKeys(keyList='q'))>0 or len(event.getKeys(keyList='num_9'))>0:
+            exit()
 
     # Countdown
     CountText = visual.TextStim(win=mywin,text="",color='black')
@@ -414,8 +413,10 @@ if Exp:
     ResponseText.draw()     
     mywin.flip()       
     while True:
-        if len(event.getKeys(keyList='space'))>0:
+        if len(event.getKeys(keyList='space'))>0 or len(event.getKeys(keyList='num_4'))>0:
             break
+        if len(event.getKeys(keyList='q'))>0 or len(event.getKeys(keyList='num_9'))>0:
+            exit()
     core.wait(1)
 
 
@@ -427,8 +428,10 @@ if Exp:
     mywin.flip()
     #5.2 Press SPACE key to continue
     while True:
-        if len(event.getKeys(keyList='space'))>0:
+        if len(event.getKeys(keyList='space'))>0 or len(event.getKeys(keyList='num_4'))>0:
             break
+        if len(event.getKeys(keyList='q'))>0 or len(event.getKeys(keyList='num_9'))>0:
+            exit()
 
     # 5.3 TRAINING READING repetition: Loops for repeatNum times
     for n in range(repeatNum):
@@ -455,12 +458,14 @@ if Exp:
             print('\nTrial '+str(i+1)+'¦ Block '+str(n+1))
             Exit=onetrial(mywin,s,fix,Timing,FileName,i+1,n+1,isText=True)
     ResponseText = visual.TextStim(win=mywin,text="",color='black')
-    ResponseText.setText(text='Word Repetition has ended.\n\nPress space to continue')
+    ResponseText.setText(text='Word Repetition has ended.\n\nPress SPACE BAR to continue')
     ResponseText.draw()     
     mywin.flip()       
     while True:
-            if len(event.getKeys(keyList='space'))>0:
-                break
+        if len(event.getKeys(keyList='space'))>0 or len(event.getKeys(keyList='num_4')):
+            break
+        if len(event.getKeys(keyList='q'))>0 or len(event.getKeys(keyList='num_9'))>0:
+            exit()
 
     # 3. END OF TASK
     ResponseText = visual.TextStim(win=mywin,text="",color='black',height=20)
@@ -468,5 +473,7 @@ if Exp:
     ResponseText.draw()     
     mywin.flip()       
     while True:
-            if len(event.getKeys(keyList='space'))>0:
-                break
+        if len(event.getKeys(keyList='space'))>0 or  len(event.getKeys(keyList='num_4')):
+            break
+        if len(event.getKeys(keyList='q'))>0 or len(event.getKeys(keyList='num_9'))>0:
+            exit()
