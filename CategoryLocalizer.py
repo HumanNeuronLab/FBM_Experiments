@@ -24,7 +24,7 @@ psychopy.prefs.hardware['audioLib'] = ['PTB', 'sounddevice','pyo','pygame']
 Center = [0,0]
 BaseTime=[0.8, 0.9, 1, 1.1]
 # BaseTime=[0.5, 0.6, 0.7, 0.8]
-CueTime=[0.8] #Test
+CueTime=[1] #Test
 
 ResponseTime=[2] #official
 Timing=[BaseTime,CueTime,ResponseTime]
@@ -61,33 +61,13 @@ image_list.append(random.sample(glob.glob(ImageFiles_instrument),k=30))
 image_list = [item for sublist in image_list for item in sublist] # flattens list
 
 
-# print(ImageFiles)
-# new_image_list = []
-# for filename in glob.glob(ImageFiles): #assuming gif
-#     new_image_list.append(filename)
-
-# new_image_list.sort()
-# image_list = []
-# for i in range(0,len(new_image_list),144):
-#     image_list.append(random.sample(new_image_list[i:i+144],k=30))
 print('¦...... Folder Used is:  ', folder_path)
 print('¦............ Number of Images:  ', np.size(image_list),'\n')
 
 
 # function ONETRIAL
-def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=False,isRepeatImage=False, timeOfRepeat = 0,start_tic=0):
+def onetrial(mywin,Stim,fix,rectangle,Timing,FileName,TrialNumber,BlockNumber,isImage=False,isRepeatImage=False, timeOfRepeat = 0,start_tic=0):
 
-    circle = visual.Circle(
-        pos= [(-1*disp_size[0]/2)+30,disp_size[1]/2-30],
-        win=mywin,
-        units="pix",
-        radius=30,
-        fillColor=[-1, -1, -1],
-        lineColor=[-1, -1, -1]
-    )
-
- 
-    
     quitnow=False
     tic=time.time()
     # event.clearEvents(eventType=None)
@@ -115,13 +95,9 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
     if isImage: # if image
         StimVisual=visual.SimpleImageStim(win=mywin,image=Stim)
         StimVisual.draw()
-        circle.draw()
+        rectangle.draw()
         mywin.flip()
-        # core.wait(0.05)
-        # StimVisual.draw()
-        # circle_gray.draw()
-        # mywin.flip()
-        core.wait(1)
+        # core.wait(1)
         if WithTriggers == 'Yes':
             port.write(b'v')
         print("¦--- Showing:                ", Stim1, '   Repeat:',isRepeatImage)
@@ -178,10 +154,7 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         ####################change on#####################################
         # 'onset,duration,trial_type,category,exemplar,response_type,response_time'
         txt=[str(onset_tic)[0:10],str(duration)[0:7],trial_type,StimName,StimNumber,response_type,str(Resp[1])]
-        # CategoryLocalizer,63,word,1664293981.9973466,0,0
-        # txt=[str(BlockName),StimNumber,StimName,str(timeOfRepeat),str(Resp[0]),str(Resp[1])]
-        # txt=[str(timeOfRepeat),str(duration)[0:7],TrialNumber,sample_offset,StimName,BlockName,StimNumber,str(Resp[0]),str(Resp[1])]
-        #####################change off ####################################
+
         txt=[str(t) for t in txt]
         FileData.write("\t".join(txt))
         FileData.write('\n')
@@ -240,9 +213,44 @@ if Exp:
         port.readData
 
     # 0. SETUP WINDOW PROPERTIES
-    mywin = visual.Window(disp_size, pos=[0,0], monitor="default",screen=choice_screen,waitBlanking=True,units="pix",color='white',fullscr=True,allowGUI=True)
+    mywin = visual.Window(disp_size, pos=[0,0], monitor="default",screen=choice_screen,waitBlanking=True,units="pix",color='gray',fullscr=True,allowGUI=True)
     fix=visual.TextStim(win=mywin,text="+",pos=[0,0], color='black',height=30)
     repeatNum=1 # how many repetitions of each item
+    
+    # circle = visual.Circle(
+    #     pos= [(-1*disp_size[0]/2)+30,disp_size[1]/2-30],
+    #     win=mywin,
+    #     units="pix",
+    #     radius=40,
+    #     fillColor=[-1, -1, -1],
+    #     lineColor=[-1, -1, -1]
+    # )
+
+    rectangle = visual.Rect(
+        win=mywin,
+        width=70,
+        height=140,
+        fillColor="black",
+        lineColor="black",
+        pos=[-1 * disp_size[0] / 2 + 50 / 2,
+            disp_size[1] / 2 - 100 / 2],
+        units="pix"
+    )
+    
+
+    core.wait(2)
+    pd_flash = 5
+    interval=0.2
+    def flash_start_end_signal(win, rectangle, pd_flash,interval=0.3):
+        for _ in range(pd_flash):
+            rectangle.draw()
+            win.flip()
+            core.wait(interval)
+            win.flip()
+            core.wait(interval)
+    # --- Flash Circle Before Start ---
+    flash_start_end_signal(mywin, rectangle,pd_flash=pd_flash,interval=interval)
+    print(f"Category Localizer Visual Experiment Begins! Photodiode flashed {pd_flash} times at interval {interval} (s)")
 
     # 1. INTRODUCTION
     Exit=False
@@ -284,10 +292,13 @@ if Exp:
 
     for i,s in enumerate(image_list):
         if Exit or len(event.getKeys(keyList='q'))>0: break
-        print('\nTrial '+str(i+1)+'¦ ')
-        Exit,timeOfRepeat, ReactTime=onetrial(mywin,s,fix,Timing,FileName,i+1,0,isImage=True, isRepeatImage=repeatIndex[i],timeOfRepeat=timeOfRepeat,start_tic=start_tic)
+        print('\nTrial '+str(i+1)+' of ' +str(len(image_list))+'¦ ')
+        Exit,timeOfRepeat, ReactTime=onetrial(mywin,s,fix,rectangle,Timing,FileName,i+1,0,isImage=True, isRepeatImage=repeatIndex[i],timeOfRepeat=timeOfRepeat,start_tic=start_tic)
         print(timeOfRepeat,ReactTime)
         # Exit=onetrial(mywin,s,fix,Timing,FileName,i+1,0,isImage=True,save=False)
+    
+    flash_start_end_signal(mywin, rectangle,pd_flash=pd_flash,interval=interval)
+    print(f"Category Localizer Visual Experiment ENDS! Photodiode flashed {pd_flash} times at interval {interval} (s)")
 
     # 3. END OF TASK
     ResponseText=visual.TextStim(win=mywin,text="",color='black',height=20)

@@ -1,4 +1,6 @@
 build/
+dist/
+Results/
 libusb-1.0.24/
 source/
 temp/
@@ -6,3 +8,6 @@ temp/
 *.exe
 *.zip
 *.pkg
+*.ini
+.vscode/
+__pycache__/

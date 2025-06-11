@@ -17,10 +17,8 @@ import serial
 from pyo import *
 
 ###   Detials CHANGE TEXT FILE NAMES
-# Define the hardcoded values
 psychopy.prefs.hardware['audioLib'] = ['PTB', 'sounddevice','pyo','pygame']
 Center = [0,0]
-# BaseTime=[0.6, 0.7, 0.8, 0.9]
 BaseTime=[0.8, 0.9, 1, 1.1]
 CueTime=[2] # doesnt matter, the sounds are only 2s long
 
@@ -58,16 +56,7 @@ with open(CategFile, 'r') as read_obj:
     list_of_dict = list(dict_reader)
 
 # function ONETRIAL
-def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=False,isRepeatImage=False, timeOfRepeat = 0,start_tic=0):
-
-    circle = visual.Circle(
-        pos= [(-1*disp_size[0]/2)+30,disp_size[1]/2-30],
-        win=mywin,
-        units="pix",
-        radius=30,
-        fillColor=[-1, -1, -1],
-        lineColor=[-1, -1, -1]
-    )
+def onetrial(mywin,Stim,fix,rectangle,Timing,FileName,TrialNumber,BlockNumber,isImage=False,isRepeatImage=False, timeOfRepeat = 0, start_tic=0):
     
     quitnow=False
     tic=time.time()
@@ -98,26 +87,16 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
     if isImage: # if image
         StimVisual=visual.SimpleImageStim(win=mywin,image=Stim)
         StimVisual.draw()
-        circle.draw()
+        rectangle.draw()
         mywin.flip()        
-        # core.wait(0.05)
-        # StimVisual.draw()
-        # circle_gray.draw()
-        # mywin.flip()
         core.wait(1)
         if WithTriggers == 'Yes':
             port.write(b'v')
         print("¦--- Showing:                ", Stim1, '   Repeat:',isRepeatImage)
     else:
-        # StimVisual=visual.SimpleImageStim(win=mywin,image=os.path.join(folder_path,'audio_icon.png'))
-        # StimVisual.draw()
         fix.draw()
-        circle.draw()
+        rectangle.draw()
         mywin.flip()
-        # core.wait(0.05)
-        # StimVisual.draw()
-        # circle_gray.draw()
-        # mywin.flip()
         if WithTriggers == 'Yes': port.write(b'b')
         Sound.play()
         core.wait(Sound.getDuration())     
@@ -140,9 +119,7 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
     sample_offset=str(time.time()+duration)
     print('¦--- Cue (Image) duration:    '+  str(duration)[0:7]+ '   right: '+ str(CueTime))
 
-    ## 3: RESPONSE
     tic=time.time()
-    # mywin.flip()
     if len(event.getKeys(keyList='q'))>0 or len(event.getKeys(keyList='num_9'))>0 :
         quitnow = True
 
@@ -237,10 +214,45 @@ if Exp:
         port = serial.Serial(PortName,9600, timeout=5) #COM4 is the right one
         port.readData
 
-    # 0. SETUP WINDOW PROPERTIES
+    # 0. SETUP WINDOW PROPERTIES + Photodiode INITIALIZER 
     mywin = visual.Window(disp_size, pos=[0,0], monitor="default",screen=choice_screen,waitBlanking=True,units="pix",color='white',fullscr=True,allowGUI=True)
     fix=visual.TextStim(win=mywin,text="+",pos=[0,0], color='black',height=30)
     repeatNum=1 # how many repetitions of each item
+    
+    # circle = visual.Circle(
+    #     pos= [(-1*disp_size[0]/2)+30,disp_size[1]/2-30],
+    #     win=mywin,
+    #     units="pix",
+    #     radius=40,
+    #     fillColor=[-1, -1, -1],
+    #     lineColor=[-1, -1, -1]
+    # )
+
+    rectangle = visual.Rect(
+        win=mywin,
+        width=70,
+        height=140,
+        fillColor="black",
+        lineColor="black",
+        pos=[-1 * disp_size[0] / 2 + 50 / 2,
+            disp_size[1] / 2 - 100 / 2],
+        units="pix"
+    )
+    
+    core.wait(2)
+    pd_flash = 10
+    interval=0.1
+
+    def flash_start_end_signal(win, rectangle, pd_flash,interval=0.3):
+        for _ in range(pd_flash):
+            rectangle.draw()
+            win.flip()
+            core.wait(interval)
+            win.flip()
+            core.wait(interval)
+    # --- Flash Circle Before Start ---
+    flash_start_end_signal(mywin, rectangle,pd_flash=pd_flash,interval=interval)
+    print(f"Category Localizer Audio Experiment Begins! Photodiode flashed {pd_flash} times at interval {interval} (s)")
 
     # 1. INTRODUCTION
     Exit=False
@@ -264,8 +276,6 @@ if Exp:
         mywin.flip()
         core.wait(1)
 
-    print('Repeats:')
-
     #  Insert the random image repetition
     np.random.shuffle(audio_list)
     repeatIndex = [False for i in range(len(audio_list))]
@@ -285,10 +295,15 @@ if Exp:
 
     for i,s in enumerate(audio_list):
         if Exit or len(event.getKeys(keyList='q'))>0 or len(event.getKeys(keyList='num_9'))>0: break
-        print('\nTrial '+str(i+1)+'¦ ')
-        Exit,timeOfRepeat, ReactTime=onetrial(mywin,s,fix,Timing,FileName,i+1,0,isImage=False, isRepeatImage=repeatIndex[i],timeOfRepeat=timeOfRepeat,start_tic=start_tic)
-        print(timeOfRepeat,ReactTime)
+        print('\nTrial '+str(i+1)+' of '+str(len(audio_list))+'¦ ')
+        Exit,timeOfRepeat, ReactTime=onetrial(mywin,s,fix,rectangle,Timing,FileName,i+1,0,isImage=False, isRepeatImage=repeatIndex[i],timeOfRepeat=timeOfRepeat,start_tic=start_tic)
+        print("Reaction Time (if not repeat, its 0 0): ",ReactTime, timeOfRepeat)
         # Exit=onetrial(mywin,s,fix,Timing,FileName,i+1,0,isImage=True,save=False)
+
+
+    flash_start_end_signal(mywin, rectangle,pd_flash=pd_flash,interval=interval)
+    print(f"Category Localizer Audio Experiment ENDS! Photodiode flashed {pd_flash} times at interval {interval} (s)")
+
 
     # 3. END OF TASK
     ResponseText=visual.TextStim(win=mywin,text="",color='black',height=20)

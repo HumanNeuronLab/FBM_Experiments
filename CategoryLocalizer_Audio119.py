@@ -54,17 +54,9 @@ print('¦............ Number of Sounds:  ', np.size(audio_list))
 
 
 # function ONETRIAL
-def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=False,isRepeatImage=False, timeOfRepeat = 0, start_tic=0):
-    
-    circle = visual.Circle(
-        pos= [(-1*disp_size[0]/2)+30,disp_size[1]/2-30],
-        win=mywin,
-        units="pix",
-        radius=30,
-        fillColor=[-1, -1, -1],
-        lineColor=[-1, -1, -1]
-    )
-    
+
+def onetrial(mywin,Stim,fix,circle,Timing,FileName,TrialNumber,BlockNumber,isImage=False,isRepeatImage=False, timeOfRepeat = 0, start_tic=0):
+
     quitnow=False
     tic=time.time()
     # event.clearEvents(eventType=None)
@@ -229,6 +221,28 @@ if Exp:
     mywin=visual.Window(disp_size, pos=[0,0], monitor="default", screen=choice_screen,waitBlanking=True,units="pix",color='white',fullscr=True,allowGUI=True)
     fix=visual.TextStim(win=mywin,text="+",pos=[0,0], color='black',height=30)
     repeatNum=1 # how many repetitions of each item
+    
+    circle = visual.Circle(
+        pos= [(-1*disp_size[0]/2)+30,disp_size[1]/2-30],
+        win=mywin,
+        units="pix",
+        radius=40,
+        fillColor=[-1, -1, -1],
+        lineColor=[-1, -1, -1]
+    )
+    core.wait(2)
+    pd_flash = 10
+    interval=0.1
+    def flash_start_end_signal(win, circle, pd_flash,interval=0.3):
+        for _ in range(pd_flash):
+            circle.draw()
+            win.flip()
+            core.wait(interval)
+            win.flip()
+            core.wait(interval)
+    # --- Flash Circle Before Start ---
+    flash_start_end_signal(mywin, circle,pd_flash=pd_flash,interval=interval)
+    print(f"Category Localizer Audio Experiment Begins! Photodiode flashed {pd_flash} times at interval {interval} (s)")
 
     # 1. INTRODUCTION
     Exit=False
@@ -273,8 +287,8 @@ if Exp:
     for i,s in enumerate(audio_list):
         if Exit or len(event.getKeys(keyList='q'))>0 or len(event.getKeys(keyList='num_9'))>0: break
         print('\nTrial '+str(i+1)+'¦ ')
-        Exit,timeOfRepeat, ReactTime=onetrial(mywin,s,fix,Timing,FileName,i+1,0,isImage=False, isRepeatImage=repeatIndex[i],timeOfRepeat=timeOfRepeat,start_tic=start_tic)
-        print(timeOfRepeat,ReactTime)
+        Exit,timeOfRepeat, ReactTime=onetrial(mywin,s,fix, circle,Timing,FileName,i+1,0,isImage=False, isRepeatImage=repeatIndex[i],timeOfRepeat=timeOfRepeat,start_tic=start_tic)
+        print(f"Trial {i+1} of {len(audio_list)}:   {s}")
         # Exit=onetrial(mywin,s,fix,Timing,FileName,i+1,0,isImage=True,save=False)
 
     # 3. END OF TASK

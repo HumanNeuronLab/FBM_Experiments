@@ -1,26 +1,15 @@
-
-import numpy as np
-from numpy.core.fromnumeric import size
-from psychopy.visual import text
-import pylab as plt
-from datetime import datetime
-import psychopy 
-from psychopy import visual
-from psychopy import core
-from psychopy import event
-from psychopy import gui
-from psychopy import sound
-import codecs
-import os.path
+import os
 import glob
 import time
+import codecs
+import numpy as np
 import serial
-from pyo import *
+import psychopy
+from datetime import datetime
+from psychopy import visual, core, event, gui, sound
 
-###   Detials
-
-# Define the hardcoded values
-psychopy.prefs.hardware['audioLib'] = ['PTB', 'sounddevice','pyo','pygame']
+# Set preferences
+psychopy.prefs.hardware['audioLib'] = ['PTB', 'sounddevice', 'pyo', 'pygame']
 Center = [0,0]
 BaseTime=[1.1,1.2,1.3,1.4]
 CueTime=[1] # Official
@@ -36,8 +25,23 @@ folder_path = os.path.dirname(os.path.abspath(__file__))
 print(folder_path)
 Respath= os.path.join(folder_path,'Results')
 ExperimentType='1'
+choose_experiment = ['Picture Naming','Auditory Definition','Sentence Completion','Motor Tasks']
 
 choose_language=[]
+'''
+# Define global constants and variables
+CENTER = [0, 0]
+BASE_TIME = [1.1, 1.2, 1.3, 1.4]
+CUE_TIME = [1]
+RESPONSE_TIME = [2]
+TIMING = [BASE_TIME, CUE_TIME, RESPONSE_TIME]
+FOLDER_PATH = os.path.dirname(os.path.abspath(__file__))
+RES_PATH = os.path.join(FOLDER_PATH, 'Results')
+CHOOSE_EXPERIMENT = ['Picture Naming', 'Auditory Definition', 'Sentence Completion', 'Motor Tasks']
+CHOOSE_LANGUAGE = [filename[-3:] for filename in glob.glob(os.path.join(FOLDER_PATH, 'auditory_*'))]
+'''
+
+
 for filename in glob.glob(os.path.join(folder_path,'auditory_*')): #assuming gif
     choose_language.append(filename[-3:])
 
@@ -85,18 +89,17 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
     if isImage: # if image
         StimVisual=visual.SimpleImageStim(win=mywin,image=Stim)
         StimVisual.draw()
-        circle.draw()
+        rectangle.draw()
         mywin.flip()
 
         core.wait(1)
-        if WithTriggers == 'Yes':
-            port.write(b'v')
+
         if WithTriggers == 'Yes': port.write(b'a')
     elif isText:
         StimVisual=visual.TextStim(win=mywin,text="",color='black',height=50)
         StimVisual.setText(text=StimSentence)
         StimVisual.draw()
-        circle.draw()
+        rectangle.draw()
         mywin.flip()
 
         if WithTriggers == 'Yes': port.write(b'c')
@@ -107,7 +110,7 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
             core.wait(3.5)
     else:
         fix.draw() 
-        circle.draw()
+        rectangle.draw()
         mywin.flip()
         if WithTriggers == 'Yes': port.write(b'b')
         Sound.play()
@@ -130,47 +133,23 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         quitnow = True
     
     while True:
-
         if len(event.getKeys(keyList='space'))>0 or len(event.getKeys(keyList='num_4'))>0 or len(event.getKeys(keyList='103'))>0: #CORRECT
             if WithTriggers == 'Yes': port.write(b'v') 
-            trial_type = "go"
-            response_type = "correct"
-            duration = time.time()-tic
-            ReactionTime = time.time()
-            ValidTrial = 1
+            [trial_type,response_type,ReactionTime,duration,ValidTrial]=['go',"correct",time.time()-tic,time.time(),1]
             break        
         if len(event.getKeys(keyList='x'))>0 or len(event.getKeys(keyList='num_6'))>0: #WRONG ANSWER
-            trial_type = "go"
-            response_type = "wrong"
-            duration = time.time()-tic
-            ReactionTime = time.time()
+            [trial_type,response_type,ReactionTime,duration,ValidTrial]=['go',"wrong",time.time()-tic,time.time(),0]
             if WithTriggers == 'Yes': port.write(b'x')
-            ValidTrial = 0 
             break
         if len(event.getKeys(keyList='n'))>0 or len(event.getKeys(keyList='num_8'))>0: #NEXT BLOCK
-            trial_type = "go"
-            response_type = "wrong"
-            ReactionTime = 0
-            duration = 0
-            ValidTrial = 0 
-            quitnow = True
+            [trial_type,response_type,ReactionTime,duration,ValidTrial,quitnow] = ["go","wrong", 0,0, 0,True]
             break
-        if len(event.getKeys(keyList='q'))>0 or len(event.getKeys(keyList='num_9'))>0: #QUICK EXPERIMENT
-            trial_type = "go"
-            response_type = "wrong"
-            ReactionTime = 0
-            duration = 0
-            ValidTrial = 0 
-            Exp = False
-            quitnow = True
+        if len(event.getKeys(keyList='q'))>0 or len(event.getKeys(keyList='num_9'))>0: #QUIT EXPERIMENT
+            [trial_type,response_type,ReactionTime,duration,ValidTrial,Exp,quitnow] = ["go","wrong",0,0,0 ,False,True]
             break
         
         duration = time.time()-tic
         ReactionTime = time.time()
-        sample_offset = str(time.time()+duration)
-        if WithTriggers == 'Yes':
-            port.write(b'b')
-
 
     Resp=[ValidTrial,ReactionTime]
     print('¦----- ReactionTime: '+str(ReactionTime)[0:7])
@@ -195,6 +174,8 @@ while True:
     DlgInit.addField("PORT (COM): ",'COM3')
     DlgInit.addField("Use serial triggers?: ",choices= ["No","Yes"])
     DlgInit.addField("Choose language: ",choices= choose_language)
+    # DlgInit.addField("Choosen Experiments: ",choices= choose_experiment)
+    DlgInit.addField("Experiments: ","Picture Naming, Auditory Def, Sentences")
     DlgInit.addField("Choose screen: ",choices= [0,1,2])
     DlgInit.addField("Display resolution: ",choices= [[1920,1080],[1800,800],[1280,1024]])
     DlgInit.show()
@@ -205,11 +186,12 @@ while True:
         PortName = InitialData[2]
         WithTriggers = InitialData[3]
         Selected_language = InitialData[4]
-        choice_screen = InitialData[5]
-        FileName='sub-'+SbjNumber+'_task-LanguageMapping_timestamp-'+ now +'('+timestamp+')_lang-'+Selected_language+'_events.tsv'
+        Selected_experiment = InitialData[5]
+        choice_screen = InitialData[6]
+        FileName='sub-'+SbjNumber+'_task-LanguageMapping_datetime-'+ now +'('+timestamp+')_language-'+Selected_language+'_events.tsv'
         print(FileName)
         FileName=os.path.join(Respath,FileName)
-        disp_size = InitialData[6]
+        disp_size = InitialData[7]
         if os.path.isfile(FileName):
             DlgFile = gui.wx.MessageDialog(None,"File exist. Do you want to continue or define other parameters(yes) or overwrite file(no)",style=gui.wx.YES|gui.wx.NO|gui.wx.ICON_QUESTION)
             Resp=DlgFile.ShowModal()
@@ -262,8 +244,13 @@ if Exp:
 
     # 0. Initialize the window
     mywin = visual.Window(disp_size, pos=[0,0], monitor="default",screen=choice_screen,waitBlanking=True,units="pix",color='white',fullscr=True,allowGUI=True)
-    circle_gray = visual.Circle(pos= [-900,480],win=mywin,units="pix",radius=60,fillColor=[0, 0, 0],lineColor=[0, 0, 0]) 
-    circle = visual.Circle(pos= [-900,480],win=mywin,units="pix",radius=60,fillColor=[-1, -1, -1],lineColor=[-1, -1, -1]) 
+    # circle_gray = visual.Circle(pos= [-900,480],win=mywin,units="pix",radius=60,fillColor=[0, 0, 0],lineColor=[0, 0, 0]) 
+    # circle = visual.Circle(pos= [-900,480],win=mywin,units="pix",radius=60,fillColor=[-1, -1, -1],lineColor=[-1, -1, -1]) 
+    rectangle_gray = visual.Rect(win=mywin,width=70,height=140,fillColor="black",lineColor="black",pos=[-1 * disp_size[0] / 2 + 50 / 2,disp_size[1] / 2 - 100 / 2],units="pix")
+    rectangle = visual.Rect(win=mywin,width=70,height=140,fillColor="black",lineColor="black",pos=[-1 * disp_size[0] / 2 + 50 / 2,disp_size[1] / 2 - 100 / 2],units="pix")
+    
+    
+    
     fix = visual.TextStim(win=mywin,text="+",pos=[0,0], color='black',height=30)
     repeatNum = 1 # how many repetitions of each item
 
@@ -287,8 +274,6 @@ if Exp:
     # circle_gray.draw()
     IntroText.draw()
     mywin.flip()
-
-
 
     #2.2 Press SPACE key to continue
     while True:
@@ -419,7 +404,6 @@ if Exp:
             exit()
     core.wait(1)
 
-
     # 5.1 READING repetition Block
     Exit = False
     IntroText = visual.TextStim(win=mywin,text="",color='black')
@@ -435,7 +419,7 @@ if Exp:
 
     # 5.3 TRAINING READING repetition: Loops for repeatNum times
     for n in range(repeatNum):
-        #shuffle image order shown
+        #TODO: shuffle image order shown only once
         np.random.shuffle(reading_list)
         for i,s in enumerate(reading_list):
             if Exit or i == 3: break
@@ -451,7 +435,7 @@ if Exp:
         core.wait(1)
     # 5.2 READING repetition: Loops for repeatNum times
     for n in range(repeatNum):
-        #shuffle image order shown
+        # shuffle word order shown
         np.random.shuffle(reading_list)
         for i,s in enumerate(reading_list):
             if Exit: break
@@ -469,7 +453,7 @@ if Exp:
 
     # 3. END OF TASK
     ResponseText = visual.TextStim(win=mywin,text="",color='black',height=20)
-    ResponseText.setText(text='Congrats! \nYou are done!\n\nPress SPACE BAR to end the experiment \n\nData saved as: \n...'+ FileName[-50:-1])
+    ResponseText.setText(text='Congrats! \nYou are done!\n\nPress SPACE BAR to end the experiment \n\nData saved as: \n...'+ FileName[-70:-1])
     ResponseText.draw()     
     mywin.flip()       
     while True:

@@ -5,6 +5,9 @@ block_cipher = None
 import pkg_resources
 from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 
+# Generate the current date in YYYYMMDD format
+current_date = datetime.now().strftime('%Y%m%d')
+
 datas = [(pkg_resources.resource_filename('arabic_reshaper', 'default-config.ini'),
                 'arabic_reshaper'),
                 (pkg_resources.resource_filename('arabic_reshaper', '__version__.py'),
@@ -36,7 +39,7 @@ exe = EXE(pyz,
           a.zipfiles,
           a.datas,
           [],
-          name='CL_Audio165_20240105',
+          name='CL_Audio165_{current_date}',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
