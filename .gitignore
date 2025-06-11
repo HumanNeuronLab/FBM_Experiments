@@ -5,6 +5,7 @@ libusb-1.0.24/
 source/
 temp/
 *.dll
+*.lib
 *.exe
 *.zip
 *.pkg
