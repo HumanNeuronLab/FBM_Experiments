@@ -12,3 +12,7 @@ temp/
 *.ini
 .vscode/
 __pycache__/
+dist/
+build/
+*.pkg
+*.exe
