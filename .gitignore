@@ -1,6 +1,7 @@
 build/
 dist/
 Results/
+memory_media/
 libusb-1.0.24/
 source/
 temp/
