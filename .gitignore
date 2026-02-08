@@ -1,6 +1,5 @@
 build/
 dist/
-Results/
 memory_media/
 outputs/
 libusb-1.0.24/
