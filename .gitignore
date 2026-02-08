@@ -14,8 +14,3 @@ temp/
 *.ini
 .vscode/
 __pycache__/
-dist/
-build/
-*.pkg
-*.exe
-ERSP_Annotation_game.py
