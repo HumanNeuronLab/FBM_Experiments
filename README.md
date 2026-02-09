@@ -1,5 +1,5 @@
 # HNL_Experiments  
-Experiments for the Human Neuron Lab (HNL)
+Experiments for the Human Neuron Lab (HNL) are in the "experiments" folder. All relevand documents will be in the "docs" folder.
 
 **Contact**  
 Pierre Megevand – pierre.megevand@unige.ch  
