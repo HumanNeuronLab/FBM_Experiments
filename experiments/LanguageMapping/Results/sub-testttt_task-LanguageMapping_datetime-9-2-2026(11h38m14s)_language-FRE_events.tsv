@@ -1,0 +1,13 @@
+SubjectNumber : testttt
+onset	duration	trial_type	category	exemplar	response_type	response_time
+4.11892223	1770633	go	picture_naming	110	correct	0.8194823265075684
+7.36988019	0	go	picture_naming	230	wrong	0
+14.1063489	1770633	go	picture_naming	26	correct	0.17316150665283203
+17.0361135	1770633	go	picture_naming	40	wrong	1.1318507194519043
+22.3102862	1770633	go	auditory_naming_FRE	11	correct	1.462080478668213
+27.8903193	1770633	go	auditory_naming_FRE	42	correct	1.1300954818725586
+33.5638175	1770633	go	auditory_naming_FRE	09	correct	0.6960709095001221
+42.8203072	0	go	auditory_naming_FRE	42	wrong	0
+64.2950618	1770633	go	reading_completion	12	correct	1.6815767288208008
+70.6111791	1770633	go	reading_completion	15	correct	0.8541879653930664
+77.1418457	1770633	go	reading_completion	09	wrong	1.1864793300628662

@@ -62,8 +62,8 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
     event.clearEvents(eventType=None)
     if isSound==True: Sound = sound.Sound(Stim) 
     if isText==False:
-        BlockName = Stim.split('\\')[-2]
-        StimNameTemp = Stim.split('\\')[-1][0:-4]
+        BlockName = os.path.basename(os.path.dirname(Stim))
+        StimNameTemp = os.path.splitext(os.path.basename(Stim))[0]
         StimNumber, StimName = StimNameTemp.split('_')
     else:
         BlockName = 'reading_completion'
@@ -168,14 +168,14 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
 
 
 while True:
-    DlgInit = gui.Dlg(title="Functional Language Mapping Initialisation")
+    DlgInit = gui.Dlg(title="Functional Brain Mapping Initialisation")    
+    DlgInit.addText("Subject Info", color="Green")
     DlgInit.addField("Subject ID:")
+    DlgInit.addText("Experiment Settings", color="red")
     DlgInit.addField("Volume (0-1): ",1)
-    DlgInit.addField("PORT (COM): ",'COM3')
+    DlgInit.addField("PORT (COMX): ",'COM3')
     DlgInit.addField("Use serial triggers?: ",choices= ["No","Yes"])
     DlgInit.addField("Choose language: ",choices= choose_language)
-    # DlgInit.addField("Choosen Experiments: ",choices= choose_experiment)
-    DlgInit.addField("Experiments: ","Picture Naming, Auditory Def, Sentences")
     DlgInit.addField("Choose screen: ",choices= [0,1,2])
     DlgInit.addField("Display resolution: ",choices= [[1920,1080],[1800,800],[1280,1024]])
     DlgInit.show()
@@ -186,24 +186,24 @@ while True:
         PortName = InitialData[2]
         WithTriggers = InitialData[3]
         Selected_language = InitialData[4]
-        Selected_experiment = InitialData[5]
-        choice_screen = InitialData[6]
+        # Selected_experiment = InitialData[5]
+        choice_screen = InitialData[5]
         FileName='sub-'+SbjNumber+'_task-LanguageMapping_datetime-'+ now +'('+timestamp+')_language-'+Selected_language+'_events.tsv'
         print(FileName)
         FileName=os.path.join(Respath,FileName)
-        disp_size = InitialData[7]
+        disp_size = InitialData[6]
         if os.path.isfile(FileName):
             DlgFile = gui.wx.MessageDialog(None,"File exist. Do you want to continue or define other parameters(yes) or overwrite file(no)",style=gui.wx.YES|gui.wx.NO|gui.wx.ICON_QUESTION)
-            Resp=DlgFile.ShowModal()
-            if Resp == 5103:
-                with open(FileName,'w') as FileData:
-                    FileData.write('\n')
-                    FileData.write('sub- : '+SbjNumber+'\n')
-                    FileData.write('task- : LanguageMapping\n')
-                    # txt=[str(BlockName),StimNumber,StimName,str(timeOfRepeat),str(Resp[0]),str(Resp[1])]
-                    FileData.write('onset\tduration\ttrial_type\tcategory\texemplar\tresponse_type\tresponse_time')
-                    FileData.write('\n')
-                break
+            Resp = DlgFile.ShowModal()
+
+            if Resp == gui.wx.ID_YES:
+                # continue
+                pass
+            elif Resp == gui.wx.ID_NO:
+                # overwrite
+                with open(FileName, 'w') as FileData:
+                    FileData.write('SubjectNumber : ' + SbjNumber + '\n')
+                    FileData.write('onset\tduration\ttrial_type\tcategory\texemplar\tresponse_type\tresponse_time\n')
         else:
             with open(FileName,'w') as FileData:
                 FileData.write('SubjectNumber : '+SbjNumber+'\n')
@@ -222,7 +222,8 @@ if Exp:
     # Add file paths
     SoundFile= os.path.join(folder_path,'auditory_naming_'+Selected_language,'*.wav')
     ImageFiles= os.path.join(folder_path,'picture_naming','*.png')
-    reading_list = codecs.open(os.path.join(folder_path,'reading_completion_'+Selected_language,'reading_comp_'+Selected_language+'.txt'),encoding='utf-8')
+    reading_list = codecs.open(os.path.join(folder_path,'reading_completion_'+Selected_language),encoding='utf-8')
+    # reading_list = codecs.open(os.path.join(folder_path,'reading_completion_'+Selected_language,'reading_comp_'+Selected_language+'.txt'),encoding='utf-8')
     reading_list = reading_list.read().split('\n')
     # reading_list = open(os.path.join(folder_path,'reading_completion_'+Selected_language,'reading_comp_'+Selected_language+'.txt')).read().split('\n')
     print(choose_language)
@@ -240,7 +241,6 @@ if Exp:
 
     if WithTriggers == 'Yes':
         port = serial.Serial(PortName,9600, timeout=5) #COM4 is the right one
-        port.readData
 
     # 0. Initialize the window
     mywin = visual.Window(disp_size, pos=[0,0], monitor="default",screen=choice_screen,waitBlanking=True,units="pix",color='white',fullscr=True,allowGUI=True)
@@ -248,8 +248,6 @@ if Exp:
     # circle = visual.Circle(pos= [-900,480],win=mywin,units="pix",radius=60,fillColor=[-1, -1, -1],lineColor=[-1, -1, -1]) 
     rectangle_gray = visual.Rect(win=mywin,width=70,height=140,fillColor="black",lineColor="black",pos=[-1 * disp_size[0] / 2 + 50 / 2,disp_size[1] / 2 - 100 / 2],units="pix")
     rectangle = visual.Rect(win=mywin,width=70,height=140,fillColor="black",lineColor="black",pos=[-1 * disp_size[0] / 2 + 50 / 2,disp_size[1] / 2 - 100 / 2],units="pix")
-    
-    
     
     fix = visual.TextStim(win=mywin,text="+",pos=[0,0], color='black',height=30)
     repeatNum = 1 # how many repetitions of each item

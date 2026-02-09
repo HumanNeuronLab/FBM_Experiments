@@ -1,0 +1,9 @@
+SubjectNumber : ffff
+onset	duration	trial_type	category	exemplar	response_type	response_time
+4.21983718	1770632	go	picture_naming	99	wrong	1.2096474170684814
+7.76218533	1770632	go	picture_naming	146	wrong	1.3619375228881836
+11.5495221	1770632	go	picture_naming	183	correct	1.0984129905700684
+19.1820933	1770632	go	picture_naming	201	correct	0.9929685592651367
+24.5626311	1770632	go	picture_naming	185	wrong	0.17945623397827148
+35.5244688	1770632	go	reading_completion	22	wrong	3.2128870487213135
+43.6583573	1770632	go	reading_completion	46	correct	1.035787582397461

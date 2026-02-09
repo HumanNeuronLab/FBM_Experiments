@@ -1,0 +1,50 @@
+01_Poteva capire che era arrabbiato dal tono della sua..._VOCE
+02_È andata in panetteria per comprare una pagnotta di..._PANE
+03_Robert le ha chiesto di sposarlo e le ha regalato un..._ANELLO
+04_Il dentista raccomanda di lavarsi i denti due volte al..._GIORNO
+05_Allentò la cravatta intorno al suo..._COLLO
+06_A Daniel è stato chiesto di diventare il nuovo allenatore della..._SQUADRA
+07_Hanno pagato il conto ma hanno dimenticato di lasciare la..._MANCIA
+08_Per pagarsi gli studi, ha chiesto alla banca un..._PRESTITO
+09_Dato che non indossava l'orologio, chiese..._L'ORA
+10_Luisa sa leggere il labiale perché è..._SORDA
+11_Si sedettero insieme senza dire una sola..._PAROLA
+12_Dopo aver urtato l'iceberg, la nave ha iniziato ad..._AFFONDARE
+13_È andata dal parrucchiere per tingersi i..._CAPELLI
+14_Martina non aveva gli occhiali da sole e la luce le faceva male agli..._OCCHI
+15_A Giuseppe non piaceva il suo abbigliamento e decise di..._CAMBIARSI
+16_Il cavallo zoppicava e sembrava molto..._SOFFERENTE
+17_Per evitare ferite alla testa, i ciclisti dovrebbero indossare un..._CASCO
+18_Per appendere il quadro, Teo ha bisogno di un martello e di un..._CHIODO
+19_Dopo la lite, Anna corse in camera sua e sbatté la..._PORTA
+20_Il padre di famiglia tagliò il pollo con un..._COLTELLO
+21_L'acqua e la luce del sole permettono alle piante di..._CRESCERE
+22_Quando due persone si incontrano, si stringono la..._MANO
+23_Ha spedito la lettera ma ha dimenticato il..._FRANCOBOLLO
+24_Indossava una sciarpa intorno al..._COLLO
+25_La penna economica ha rapidamente finito..._L'INCHIOSTRO
+26_Aveva avuto una giornata difficile ed era di cattivo..._UMORE
+27_Ha finito l'anno scolastico come prima della sua..._CLASSE
+28_L'atleta ama sollevare pesi in palestra..._PALESTRA
+29_Aspettava la chiamata di Giacomo e stava in attesa che squillasse il..._TELEFONO
+30_Il pacco è stato spedito per..._POSTA
+31_Sotto la doccia, si lavò con il... _SAPONE
+32_Un ombrello permette di evitare di essere..._BAGNATI
+33_Gli studenti hanno consegnato i compiti con un giorno di..._RITARDO
+34_Finge di aver perso la pagella per nascondere i suoi brutti..._VOTI
+35_Per il suo appuntamento romantico, Tommaso ha comprato tre belle..._ROSE/FIORI
+36_Il genio promise di esaudire tre..._DESIDERI
+37_Un anno dopo la morte di sua madre, Guglielmo si raccolse in preghiera sulla sua..._TOMBA
+38_Bambini, andate fuori a..._GIOCARE
+39_Il maestro scrisse le istruzioni sulla..._LAVAGNA (NERO)
+40_Il suo lavoro era facile per la maggior parte del..._TEMPO
+41_Nel silenzio del cinema, il telefono di Maria... _SUONÒ
+42_La stanza era buia, quindi accese la..._LUCE
+43_Il gattino giocava con il gomitolo di..._LANA
+44_Il contadino trascorse la mattinata a mungere le sue..._MUCCHE
+45_Dopo ogni pasto è bene lavarsi i..._DENTI
+46_Portò la sua canna da pesca per pescare dei..._PESCI
+47_La stanza era fredda, quindi accese il..._RISCALDAMENTO
+48_Dato che nella stanza c'era molto rumore, ho dovuto gridare per farmi..._SENTIRE
+49_C'era abbastanza vento per far volare un..._AQUILONE
+50_Elena ama la poesia, la pittura e tutte le forme d'..._ARTE
