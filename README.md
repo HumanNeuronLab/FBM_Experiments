@@ -7,11 +7,7 @@ Lora Fanda – lorafanda7@gmail.com
 
 ---
 
-## 1. Demo  
-
-### Quick GIF Preview  
-![Experiment Demo](assets/demo.gif)  
-*(Replace with your own GIF in the `assets/` folder)*  
+## 1. Demo   
 
 ### Full Walkthrough Video  
 [![Watch the experiment walkthrough](https://img.youtube.com/vi/VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=VIDEO_ID)  
