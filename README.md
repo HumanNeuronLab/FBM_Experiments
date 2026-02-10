@@ -10,10 +10,15 @@ Lora Fanda – lorafanda7@gmail.com
 ## 1. Demo Video
 
 <video width="800" controls>
-  <source src="docs/Demo_video.mov" type="video/quicktime">
-  Your browser does not support the video tag.
+  <source src="docs/Demo_Video.mp4" type="video/mp4">
 </video>
 
+
+### Full Walkthrough Video
+
+<video width="800" controls>
+  <source src="https://raw.githubusercontent.com/HumanNeuronLab/FBM_Experiments/main/docs/Demo_Video.mp4" type="video/mp4">
+</video>
 ---
 
 ## 2. How to Run an Experiment  
