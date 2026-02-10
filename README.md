@@ -9,10 +9,9 @@ Lora Fanda – lorafanda7@gmail.com
 
 ## 1. Demo Video
 
-<video width="800" controls>
-  <source src="docs/Demo_Video.mp4" type="video/mp4">
-</video>
+### Full Walkthrough Video
 
+[▶️ Click to watch/download](docs/Demo_Video.mp4)
 
 ### Full Walkthrough Video
 
