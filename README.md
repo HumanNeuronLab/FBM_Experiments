@@ -1,4 +1,4 @@
-# HNL_Experiments  
+# FBM Toolkit Experiments  
 Experiments for the Human Neuron Lab (HNL) are in the "experiments" folder. All relevand documents will be in the "docs" folder.
 
 **Contact**  
