@@ -7,11 +7,12 @@ Lora Fanda – lorafanda7@gmail.com
 
 ---
 
-## 1. Demo   
+## 1. Demo Video
 
-### Full Walkthrough Video  
-[![Watch the experiment walkthrough](https://img.youtube.com/vi/VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=VIDEO_ID)  
-*(Replace `VIDEO_ID` with your own link)*  
+<video width="800" controls>
+  <source src="Demo_video.mov" type="video/quicktime">
+  Your browser does not support the video tag.
+</video>
 
 ---
 
