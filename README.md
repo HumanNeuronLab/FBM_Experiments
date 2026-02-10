@@ -9,7 +9,9 @@ Lora Fanda – lorafanda7@gmail.com
 
 ## 1. Demo Video
 [▶️ Click to watch/download](docs/Demo_Video.mp4)
-
+<video width="800" controls>
+  <source src="https://raw.githubusercontent.com/HumanNeuronLab/FBM_Experiments/main/docs/Demo_Video.mp4" type="video/mp4">
+</video>
 ---
 
 ## 2. How to Run an Experiment  
