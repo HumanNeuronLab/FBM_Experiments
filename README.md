@@ -10,7 +10,7 @@ Lora Fanda – lorafanda7@gmail.com
 ## 1. Demo Video
 
 <video width="800" controls>
-  <source src="Demo_video.mov" type="video/quicktime">
+  <source src="docs/Demo_video.mov" type="video/quicktime">
   Your browser does not support the video tag.
 </video>
 
