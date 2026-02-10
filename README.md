@@ -1,4 +1,5 @@
-<img width="360" height="309" alt="image" src="https://github.com/user-attachments/assets/17c18468-0d33-4094-a157-daf197ad5bf5" />
+<img width="238" height="204" alt="image" src="https://github.com/user-attachments/assets/be44cf8d-0dcb-44d1-b873-ee1f7a28f111" />
+
 
 # FBM Toolkit Experiments  
 
