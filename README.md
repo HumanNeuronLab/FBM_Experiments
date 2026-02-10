@@ -1,4 +1,7 @@
+<img width="360" height="309" alt="image" src="https://github.com/user-attachments/assets/17c18468-0d33-4094-a157-daf197ad5bf5" />
+
 # FBM Toolkit Experiments  
+
 Experiments for the Human Neuron Lab (HNL) are in the "experiments" folder. All relevand documents will be in the "docs" folder.
 
 **Contact**  
