@@ -61,10 +61,12 @@ experiments/
 │  ├─ FBM-LanguageMapping-Windows-v1.0.0.exe
 │  └─ ...
 ├─ CategoryLocalizerAudio/
-│  ├─ FBM-CategoryLocalizerAudio-Windows-v1.0.0.exe
+│  ├─ Audio
+|  |  ├─ FBM-CategoryLocalizerAudio-Windows-v1.0.0.exe
 │  └─ ...
 ├─ CategoryLocalizerVisual/
-│  ├─ FBM-CategoryLocalizerVisual-Windows-v1.0.0.exe
+│  ├─ Visual
+|  |  ├─ FBM-CategoryLocalizerVisual-Windows-v1.0.0.exe
 │  └─ ...
 ├─ MotorMapping/
 │  ├─ FBM-MotorMapping-Windows-v1.0.0.exe
