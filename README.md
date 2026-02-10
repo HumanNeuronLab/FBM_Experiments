@@ -5,12 +5,10 @@ Experiments for the Human Neuron Lab (HNL) are in the "experiments" folder. All 
 Pierre Megevand – pierre.megevand@unige.ch  
 Lora Fanda – lorafanda7@gmail.com  
 
----
 
 ## 1. Demo Video
 [▶️ Click to watch/download](docs/Demo_Video.mp4)
 
----
 
 ## 2. How to Run an Experiment  
 
@@ -25,7 +23,6 @@ Lora Fanda – lorafanda7@gmail.com
 5. Run the experiment until completion.  
 6. Verify the behavioral output in the experiment’s `Results/` folder.  
 
----
 
 ## 3. How to Add or Replace Stimuli  
 
@@ -36,13 +33,37 @@ Lora Fanda – lorafanda7@gmail.com
 **Example**  
 To replace the German auditory stimulus `06_CHAT.wav`, create a new `.wav` file and save it using the **exact same filename** inside the corresponding language folder.
 
----
 
 ## 4. Folder Organization  
 
 All experiments are organized under the `experiments/` directory and grouped by task and subtask.
 
----
 
-### 4.1 Language Mapping  
+## 5.Downloads (Windows)
 
+Latest release of the FBM experiment suite include:
+
+- Language Mapping  
+- Audio Category Localizer  
+- Visual Category Localizer  
+- Motor Mapping  
+
+You can find them at:
+➡️ https://github.com/HumanNeuronLab/FBM_Experiments/releases/latest
+
+Each executable must be placed inside the corresponding experiment folder for the tool to function correctly.
+```
+experiments/
+├─ LanguageMapping/
+│  ├─ FBM-LanguageMapping-Windows-v1.0.0.exe
+│  └─ ...
+├─ CategoryLocalizerAudio/
+│  ├─ FBM-CategoryLocalizerAudio-Windows-v1.0.0.exe
+│  └─ ...
+├─ CategoryLocalizerVisual/
+│  ├─ FBM-CategoryLocalizerVisual-Windows-v1.0.0.exe
+│  └─ ...
+├─ MotorMapping/
+│  ├─ FBM-MotorMapping-Windows-v1.0.0.exe
+│  └─ ...
+```
