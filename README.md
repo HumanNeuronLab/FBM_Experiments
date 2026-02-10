@@ -60,11 +60,9 @@ experiments/
 ├─ LanguageMapping/
 │  ├─ FBM-LanguageMapping-Windows-v1.0.0.exe
 │  └─ ...
-├─ CategoryLocalizerAudio/
+├─ CategoryLocalizer/
 │  ├─ Audio
 |  |  ├─ FBM-CategoryLocalizerAudio-Windows-v1.0.0.exe
-│  └─ ...
-├─ CategoryLocalizerVisual/
 │  ├─ Visual
 |  |  ├─ FBM-CategoryLocalizerVisual-Windows-v1.0.0.exe
 │  └─ ...
