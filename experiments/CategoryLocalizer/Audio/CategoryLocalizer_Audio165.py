@@ -1,3 +1,9 @@
+"""
+MIT License
+
+Copyright (c) 2026 Lora Fanda
+See LICENSE file in the project root for full license information.
+"""
 
 import numpy as np
 from numpy.core.fromnumeric import size
