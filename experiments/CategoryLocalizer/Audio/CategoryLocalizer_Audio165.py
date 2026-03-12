@@ -21,6 +21,7 @@ import glob
 import time
 import serial
 from pyo import *
+import psychtoolbox as ptb
 
 ###   Detials CHANGE TEXT FILE NAMES
 psychopy.prefs.hardware['audioLib'] = ['PTB', 'sounddevice','pyo','pygame']
@@ -94,17 +95,18 @@ def onetrial(mywin,Stim,fix,rectangle,Timing,FileName,TrialNumber,BlockNumber,is
         StimVisual=visual.SimpleImageStim(win=mywin,image=Stim)
         StimVisual.draw()
         rectangle.draw()
+        mywin.callOnFlip(port.write,bytes(bytearray(1))) if WithTriggers == "Yes" else None
         mywin.flip()        
         core.wait(1)
-        if WithTriggers == 'Yes':
-            port.write(b'v')
         print("¦--- Showing:                ", Stim1, '   Repeat:',isRepeatImage)
     else:
         fix.draw()
         rectangle.draw()
+        mywin.callOnFlip(port.write,bytes(bytearray(11))) if WithTriggers == "Yes" else None
+        next_flip = mywin.getFutureFlipTime(clock='ptb')
+        Sound.play(when=next_flip)
         mywin.flip()
-        if WithTriggers == 'Yes': port.write(b'b')
-        Sound.play()
+        # Sound.play()
         core.wait(Sound.getDuration())     
     el2=time.time()-tic
     core.wait(CueTime-el2)

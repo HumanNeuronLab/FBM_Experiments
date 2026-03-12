@@ -13,7 +13,7 @@ import serial
 import psychopy
 from datetime import datetime
 from psychopy import visual, core, event, gui, sound
-
+import psychtoolbox as ptb
 
 # Set preferences
 psychopy.prefs.hardware['audioLib'] = ['PTB', 'sounddevice', 'pyo', 'pygame']
@@ -116,8 +116,10 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         fix.draw() 
         rectangle.draw()
         mywin.callOnFlip(port.write, bytes(bytearray([2]))) if WithTriggers == 'Yes' else None
+        next_flip = mywin.getFutureFlipTime(clock='ptb')
+        Sound.play(when=next_flip)        
         mywin.flip()
-        Sound.play()
+
         core.wait(Sound.getDuration())  # TODO why plus one   
     el2=time.time()-tic
     core.wait(CueTime-el2)
