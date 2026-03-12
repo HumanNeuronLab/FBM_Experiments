@@ -14,3 +14,4 @@ temp/
 .vscode/
 __pycache__/
 experiments/**/Results/*.tsv
+git_commands.txt
