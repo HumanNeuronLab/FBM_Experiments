@@ -97,8 +97,8 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         StimVisual=visual.SimpleImageStim(win=mywin,image=Stim)
         StimVisual.draw()
         rectangle.draw()
+        mywin.callOnFlip(port.write, bytes(bytearray([1]))) if WithTriggers == 'Yes' else None
         mywin.flip()
-        if WithTriggers == 'Yes': port.write(bytes([1]))
         core.wait(1)
 
     elif isText:
@@ -106,20 +106,18 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         StimVisual.setText(text=StimSentence)
         StimVisual.draw()
         rectangle.draw()
+        mywin.callOnFlip(port.write, bytes(bytearray([3]))) if WithTriggers == 'Yes' else None
         mywin.flip()
-
-        if WithTriggers == 'Yes': port.write(bytes([3]))
         if Selected_language=="GER":
             core.wait(5.5)
-
         else: 
             core.wait(3.5)
     else:
         fix.draw() 
         rectangle.draw()
+        mywin.callOnFlip(port.write, bytes(bytearray([2]))) if WithTriggers == 'Yes' else None
         mywin.flip()
         Sound.play()
-        if WithTriggers == 'Yes': port.write(bytes([2]))
         core.wait(Sound.getDuration())  # TODO why plus one   
     el2=time.time()-tic
     core.wait(CueTime-el2)
@@ -132,20 +130,18 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
     ResponseText=visual.TextStim(win=mywin,text="",color='black',height=40)
     ResponseText.setText(text='?')
     ResponseText.draw()
+    mywin.callOnFlip(port.write, bytes(bytearray([10]))) if WithTriggers == 'Yes' else None
     mywin.flip()
 
-    if WithTriggers == 'Yes': port.write(b'1')
     if len(event.getKeys(keyList='q'))>0 or len(event.getKeys(keyList='num_9'))>0:
         quitnow = True
     
     while True:
         if len(event.getKeys(keyList='space'))>0 or len(event.getKeys(keyList='num_4'))>0 or len(event.getKeys(keyList='103'))>0: #CORRECT
-            if WithTriggers == 'Yes': port.write(b'v') 
             [trial_type,response_type,ReactionTime,duration,ValidTrial]=['go',"correct",time.time()-tic,time.time(),1]
             break        
         if len(event.getKeys(keyList='x'))>0 or len(event.getKeys(keyList='num_6'))>0: #WRONG ANSWER
             [trial_type,response_type,ReactionTime,duration,ValidTrial]=['go',"wrong",time.time()-tic,time.time(),0]
-            if WithTriggers == 'Yes': port.write(b'x')
             break
         if len(event.getKeys(keyList='n'))>0 or len(event.getKeys(keyList='num_8'))>0: #NEXT BLOCK
             [trial_type,response_type,ReactionTime,duration,ValidTrial,quitnow] = ["go","wrong", 0,0, 0,True]

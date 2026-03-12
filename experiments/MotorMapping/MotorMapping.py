@@ -53,9 +53,10 @@ def run_trial(win, fix_black, fix_green, rectangle, baseline_durations, stim_dur
     # Baseline phase
     baseline_duration = np.random.choice(baseline_durations)
     fix_black.draw()
+    win.callOnFlip(serial_port.write, bytes(bytearray([7]))) if serial_port else None
+
     win.flip()
-    if serial_port:
-        serial_port.write(bytes(bytearray([7])))  # Send start signal for stimuli phase
+
     core.wait(baseline_duration)
 
     # Stimuli phase (3 seconds)
@@ -63,9 +64,8 @@ def run_trial(win, fix_black, fix_green, rectangle, baseline_durations, stim_dur
     print("Trial number: " + str(trial_number) + "   Block name: "+str(block_name))  # Fixed 3 seconds for stimuli
     fix_green.draw()
     rectangle.draw()  # Draw the black circle in the top-left corner
+    win.callOnFlip(serial_port.write, bytes(bytearray([7]))) if serial_port else None
     win.flip()
-    if serial_port:
-        serial_port.write(bytes(bytearray([9])))  # Send start signal for stimuli phase
     core.wait(stim_duration)
 
     # Record trial data
@@ -94,9 +94,11 @@ def run_motor_mapping(serial_port, experiment_settings):
     
     # four black circles, 0.5 seconds appart
     for i in range(4):
+        win.callOnFlip(serial_port.write, bytes(bytearray([1]))) if serial_port else None
         win.flip()
         core.wait(0.5)
         rectangle.draw()  # Draw the black circle in the top-left corner
+        win.callOnFlip(serial_port.write, bytes(bytearray([2]))) if serial_port else None
         win.flip()
         core.wait(0.5)
    
