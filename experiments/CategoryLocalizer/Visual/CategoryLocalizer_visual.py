@@ -102,17 +102,15 @@ def onetrial(mywin,Stim,fix,rectangle,Timing,FileName,TrialNumber,BlockNumber,is
         StimVisual=visual.SimpleImageStim(win=mywin,image=Stim)
         StimVisual.draw()
         rectangle.draw()
+        mywin.callOnFlip(port.write,bytes(bytearray(1))) if WithTriggers == "Yes" else None
         mywin.flip()
         # core.wait(1)
-        if WithTriggers == 'Yes':
-            port.write(b'v')
         print("¦--- Showing:                ", Stim1, '   Repeat:',isRepeatImage)
     ReactionTime = 0
     ValidTrial = 0 
     if isRepeatImage:
         timeOfRepeat = time.time()
-        if WithTriggers == 'Yes':
-            port.write(b'a')
+        mywin.callOnFlip(port.write,bytes(bytearray(11))) if WithTriggers == "Yes" else None
     else:
         timeOfRepeat = 0
 
@@ -131,12 +129,9 @@ def onetrial(mywin,Stim,fix,rectangle,Timing,FileName,TrialNumber,BlockNumber,is
     
     # Save to txt file
     if len(event.getKeys(keyList='space'))>0 or len(event.getKeys(keyList='num_4'))>0: #CORRECT
-        if WithTriggers == 'Yes': port.write(b'v') 
         duration = time.time()-tic
         ReactionTime = time.time()
         sample_offset=str(time.time()+duration)
-        # if WithTriggers == 'Yes':
-            # port.write(b'b')
 
     if (ReactionTime == 0 and timeOfRepeat == 0) or (ReactionTime != 0 and timeOfRepeat != 0):
         ValidTrial=1
