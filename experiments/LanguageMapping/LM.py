@@ -14,6 +14,7 @@ import psychopy
 from datetime import datetime
 from psychopy import visual, core, event, gui, sound
 
+
 # Set preferences
 psychopy.prefs.hardware['audioLib'] = ['PTB', 'sounddevice', 'pyo', 'pygame']
 Center = [0,0]
@@ -97,10 +98,9 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         StimVisual.draw()
         rectangle.draw()
         mywin.flip()
-
+        if WithTriggers == 'Yes': port.write(bytes([1]))
         core.wait(1)
 
-        if WithTriggers == 'Yes': port.write(b'a')
     elif isText:
         StimVisual=visual.TextStim(win=mywin,text="",color='black',height=50)
         StimVisual.setText(text=StimSentence)
@@ -108,7 +108,7 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         rectangle.draw()
         mywin.flip()
 
-        if WithTriggers == 'Yes': port.write(b'c')
+        if WithTriggers == 'Yes': port.write(bytes([3]))
         if Selected_language=="GER":
             core.wait(5.5)
 
@@ -118,9 +118,9 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         fix.draw() 
         rectangle.draw()
         mywin.flip()
-        if WithTriggers == 'Yes': port.write(b'b')
         Sound.play()
-        core.wait(Sound.getDuration()+1)  # TODO why plus one   
+        if WithTriggers == 'Yes': port.write(bytes([2]))
+        core.wait(Sound.getDuration())  # TODO why plus one   
     el2=time.time()-tic
     core.wait(CueTime-el2)
     duration = time.time()-tic
@@ -228,7 +228,7 @@ if Exp:
     # Add file paths
     SoundFile= os.path.join(folder_path,'auditory_naming_'+Selected_language,'*.wav')
     ImageFiles= os.path.join(folder_path,'picture_naming','*.png')
-    reading_list = codecs.open(os.path.join(folder_path,'reading_completion_'+Selected_language),encoding='utf-8')
+    reading_list = open(os.path.join(folder_path,'reading_completion_'+Selected_language),encoding='utf-8')
     # reading_list = codecs.open(os.path.join(folder_path,'reading_completion_'+Selected_language,'reading_comp_'+Selected_language+'.txt'),encoding='utf-8')
     reading_list = reading_list.read().split('\n')
     # reading_list = open(os.path.join(folder_path,'reading_completion_'+Selected_language,'reading_comp_'+Selected_language+'.txt')).read().split('\n')
