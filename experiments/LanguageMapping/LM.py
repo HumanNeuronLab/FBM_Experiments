@@ -12,11 +12,12 @@ import numpy as np
 import serial
 import psychopy
 from datetime import datetime
-from psychopy import visual, core, event, gui, sound
 import psychtoolbox as ptb
 
 # Set preferences
 psychopy.prefs.hardware['audioLib'] = ['PTB', 'sounddevice', 'pyo', 'pygame']
+from psychopy import visual, core, event, gui, sound
+
 Center = [0,0]
 BaseTime=[1.1,1.2,1.3,1.4]
 CueTime=[1] # Official
@@ -32,7 +33,7 @@ folder_path = os.path.dirname(os.path.abspath(__file__))
 print(folder_path)
 Respath= os.path.join(folder_path,'Results')
 ExperimentType='1'
-choose_experiment = ['Picture Naming','Auditory Definition','Sentence Completion','Motor Tasks']
+choose_experiment = ['Picture Naming','Auditory Definition','Sentence Completion']
 
 choose_language=[]
 '''
@@ -47,7 +48,6 @@ RES_PATH = os.path.join(FOLDER_PATH, 'Results')
 CHOOSE_EXPERIMENT = ['Picture Naming', 'Auditory Definition', 'Sentence Completion', 'Motor Tasks']
 CHOOSE_LANGUAGE = [filename[-3:] for filename in glob.glob(os.path.join(FOLDER_PATH, 'auditory_*'))]
 '''
-
 
 for filename in glob.glob(os.path.join(folder_path,'auditory_*')): #assuming gif
     choose_language.append(filename[-3:])
@@ -67,7 +67,8 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
     quitnow=False
     tic=time.time()
     event.clearEvents(eventType=None)
-    if isSound==True: Sound = sound.Sound(Stim) 
+    # if isSound==True: Sound = sound.Sound(Stim) 
+    if isSound==True: Sound = sound_cache[Stim]    
     if isText==False:
         BlockName = os.path.basename(os.path.dirname(Stim))
         StimNameTemp = os.path.splitext(os.path.basename(Stim))[0]
@@ -93,8 +94,11 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
     ## 2: CUE
     tic=time.time()
     onset_tic = tic - start_tic
+    mywin.frameIntervals = []
+    mywin.recordFrameIntervals = True
     if isImage: # if image
-        StimVisual=visual.SimpleImageStim(win=mywin,image=Stim)
+        # StimVisual=visual.SimpleImageStim(win=mywin,image=Stim)
+        StimVisual = image_cache[Stim]
         StimVisual.draw()
         rectangle.draw()
         mywin.callOnFlip(port.write, bytes(bytearray([1]))) if WithTriggers == 'Yes' else None
@@ -102,8 +106,9 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         core.wait(1)
 
     elif isText:
-        StimVisual=visual.TextStim(win=mywin,text="",color='black',height=50)
-        StimVisual.setText(text=StimSentence)
+        # StimVisual=visual.TextStim(win=mywin,text="",color='black',height=50)
+        # StimVisual.setText(text=StimSentence)
+        StimVisual = text_cache[Stim]
         StimVisual.draw()
         rectangle.draw()
         mywin.callOnFlip(port.write, bytes(bytearray([3]))) if WithTriggers == 'Yes' else None
@@ -124,7 +129,7 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
     el2=time.time()-tic
     core.wait(CueTime-el2)
     duration = time.time()-tic
-    sample_offset=str(time.time()+duration)
+    mywin.recordFrameIntervals = False
     print('¦--- Cue (Image) duration:    '+  str(duration)[0:7]+ '   right: '+ str(CueTime))
 
     ## 3: RESPONSE
@@ -226,18 +231,30 @@ if Exp:
     # Add file paths
     SoundFile= os.path.join(folder_path,'auditory_naming_'+Selected_language,'*.wav')
     ImageFiles= os.path.join(folder_path,'picture_naming','*.png')
-    reading_list = open(os.path.join(folder_path,'reading_completion_'+Selected_language),encoding='utf-8')
-    # reading_list = codecs.open(os.path.join(folder_path,'reading_completion_'+Selected_language,'reading_comp_'+Selected_language+'.txt'),encoding='utf-8')
+    # reading_list = open(os.path.join(folder_path,'reading_completion_'+Selected_language,'reading_completion_'+Selected_language+'.txt'),encoding='utf-8')
+    # # reading_list = codecs.open(os.path.join(folder_path,'reading_completion_'+Selected_language,'reading_comp_'+Selected_language+'.txt'),encoding='utf-8')
+    # reading_list = reading_list.read().split('\n')
+    # # reading_list = open(os.path.join(folder_path,'reading_completion_'+Selected_language,'reading_comp_'+Selected_language+'.txt')).read().split('\n')
+    # print(choose_language)
+
+    # image_list = []
+    # sound_list = []
+    # for filename in glob.glob(ImageFiles): #assuming gif
+    #     image_list.append(filename)
+    # for filename in glob.glob(SoundFile): #assuming gif
+    #     sound_list.append(filename)
+
+    reading_list = open(os.path.join(folder_path, 'reading_completion_' + Selected_language,'reading_completion_' + Selected_language + '.txt'), encoding='utf-8')
     reading_list = reading_list.read().split('\n')
-    # reading_list = open(os.path.join(folder_path,'reading_completion_'+Selected_language,'reading_comp_'+Selected_language+'.txt')).read().split('\n')
     print(choose_language)
 
     image_list = []
     sound_list = []
-    for filename in glob.glob(ImageFiles): #assuming gif
+    for filename in glob.glob(ImageFiles):
         image_list.append(filename)
-    for filename in glob.glob(SoundFile): #assuming gif
+    for filename in glob.glob(SoundFile):
         sound_list.append(filename)
+
 
     print('¦...... Folder Used is:  ', folder_path)
     print('¦............ Number of Images:  ', np.size(image_list))
@@ -248,6 +265,20 @@ if Exp:
 
     # 0. Initialize the window
     mywin = visual.Window(disp_size, pos=[0,0], monitor="default",screen=choice_screen,waitBlanking=True,units="pix",color='white',fullscr=True,allowGUI=True)
+    mywin.recordFrameIntervals = False
+    mywin.frameIntervals = []
+
+    # PRELOAD STIMULI
+    image_cache = {fname: visual.SimpleImageStim(win=mywin, image=fname) for fname in image_list}
+    sound_cache = {fname: sound.Sound(fname) for fname in sound_list}
+
+    text_cache = {}
+    for stim in reading_list:
+        if stim.strip() == "":
+            continue
+        StimNumber, StimSentence, StimName = stim.split('_')
+        text_cache[stim] = visual.TextStim(win=mywin, text=StimSentence, color='black', height=50)
+
     # circle_gray = visual.Circle(pos= [-900,480],win=mywin,units="pix",radius=60,fillColor=[0, 0, 0],lineColor=[0, 0, 0]) 
     # circle = visual.Circle(pos= [-900,480],win=mywin,units="pix",radius=60,fillColor=[-1, -1, -1],lineColor=[-1, -1, -1]) 
     rectangle_gray = visual.Rect(win=mywin,width=70,height=140,fillColor="black",lineColor="black",pos=[-1 * disp_size[0] / 2 + 50 / 2,disp_size[1] / 2 - 100 / 2],units="pix")
