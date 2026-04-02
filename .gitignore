@@ -5,12 +5,13 @@ outputs/
 libusb-1.0.24/
 source/
 temp/
-*.dll
+# *.dll
 *.lib
 *.exe
 *.zip
 *.pkg
 *.ini
+experiments/**/*.spec
 .vscode/
 __pycache__/
 experiments/**/Results/*.tsv
