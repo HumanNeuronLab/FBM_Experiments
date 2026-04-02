@@ -59,14 +59,14 @@ Each executable must be placed inside the corresponding experiment folder for th
 ```
 experiments/
 ├─ LanguageMapping/
-│  ├─ FBM-LanguageMapping-Windows-v#.#.#.exe
+│  ├─ FBM-LanguageMapping-v#.#.#.exe
 │  └─ ...
 ├─ CategoryLocalizer/
 │  ├─ Audio
 │  ├─ Visual
-|  ├─ FBM-CategoryLocalizerVisual-Windows-v#.#.#.exe
+|  ├─ FBM-CategoryLocalizer-v#.#.#.exe
 │  └─ ...
 ├─ MotorMapping/
-│  ├─ FBM-MotorMapping-Windows-v#.#.#.exe
+│  ├─ FBM-MotorMapping-v#.#.#.exe
 │  └─ ...
 ```
