@@ -30,7 +30,6 @@ now="-".join([str(now.day),str(now.month),str(now.year)])
 
 Exp=True
 folder_path = os.path.dirname(os.path.abspath(__file__))
-print(folder_path)
 Respath= os.path.join(folder_path,'Results')
 ExperimentType='1'
 # choose_experiment = ['Picture Naming','Auditory Definition','Sentence Completion']
@@ -105,8 +104,13 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         mywin.callOnFlip(port.write, bytes(bytearray([3]))) if WithTriggers == 'Yes' else None
         mywin.flip()
         if Selected_language=="GER":
+            CueTime=5.5
             core.wait(5.5)
-        else: 
+        elif Selected_language=="FRE" or Selected_language=="ITA": 
+            CueTime=4.0
+            core.wait(4.0)
+        else:
+            CueTime=3.5
             core.wait(3.5)
     else:
         fix.draw() 
@@ -115,13 +119,13 @@ def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=Fals
         next_flip = mywin.getFutureFlipTime(clock='ptb')
         Sound.play(when=next_flip)        
         mywin.flip()
-
-        core.wait(Sound.getDuration())  # TODO why plus one   
+        CueTime =Sound.getDuration()
+        core.wait(Sound.getDuration())  
     el2=time.time()-tic
     core.wait(CueTime-el2)
     duration = time.time()-tic
     mywin.recordFrameIntervals = False
-    print('¦--- Cue (Image) duration:    '+  str(duration)[0:7]+ '   right: '+ str(CueTime))
+    print('¦--- Cue (stim) duration:    '+  str(duration)[0:7]+ '   right: '+ str(CueTime))
 
     ## 3: RESPONSE
     tic=time.time()
@@ -273,8 +277,16 @@ if Exp:
     # circle_gray = visual.Circle(pos= [-900,480],win=mywin,units="pix",radius=60,fillColor=[0, 0, 0],lineColor=[0, 0, 0]) 
     # circle = visual.Circle(pos= [-900,480],win=mywin,units="pix",radius=60,fillColor=[-1, -1, -1],lineColor=[-1, -1, -1]) 
     # rectangle_gray = visual.Rect(win=mywin,width=70*4,height=140*4,fillColor="black",lineColor="black",pos=[-1 * disp_size[0] / 2 + 50 / 2,disp_size[1] / 2 - 100 / 2],units="pix")
-    rectangle = visual.Rect(win=mywin,width=70*4,height=140*4,fillColor="black",lineColor="black",pos=[-1 * disp_size[0] / 2 + 50 / 2,disp_size[1] / 2 - 100 / 2],units="pix")
-    
+    rectangle = visual.Rect(
+        win=mywin,
+        width=70,
+        height=140,
+        fillColor="black",
+        lineColor="black",
+        pos=[-1 * disp_size[0] / 2 + 50 / 2, disp_size[1] / 2 - 100 / 2],
+        units="pix",
+    )    
+
     fix = visual.TextStim(win=mywin,text="+",pos=[0,0], color='black',height=30)
     repeatNum = 1 # how many repetitions of each item
 
