@@ -11,6 +11,7 @@ temp/
 *.zip
 *.pkg
 *.ini
+*.spec
 experiments/**/*.spec
 .vscode/
 __pycache__/
