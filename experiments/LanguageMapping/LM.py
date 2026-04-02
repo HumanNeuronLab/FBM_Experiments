@@ -15,7 +15,7 @@ from datetime import datetime
 import psychtoolbox as ptb
 
 # Set preferences
-psychopy.prefs.hardware['audioLib'] = ['PTB', 'sounddevice', 'pyo', 'pygame']
+psychopy.prefs.hardware['audioLib'] = ['sounddevice','PTB','pyo', 'pygame']
 from psychopy import visual, core, event, gui, sound
 
 Center = [0,0]
@@ -33,7 +33,7 @@ folder_path = os.path.dirname(os.path.abspath(__file__))
 print(folder_path)
 Respath= os.path.join(folder_path,'Results')
 ExperimentType='1'
-choose_experiment = ['Picture Naming','Auditory Definition','Sentence Completion']
+# choose_experiment = ['Picture Naming','Auditory Definition','Sentence Completion']
 
 choose_language=[]
 '''
@@ -54,15 +54,6 @@ for filename in glob.glob(os.path.join(folder_path,'auditory_*')): #assuming gif
 
 def onetrial(mywin,Stim,fix,Timing,FileName,TrialNumber,BlockNumber,isImage=False,isText=False,isSound=False):
     # Exit=onetrial(mywin,s,fix,Timing,FileName,n+1)
-    circle = visual.Circle(
-        pos= [(-1*disp_size[0]/2)+40,disp_size[1]/2-40],
-        win=mywin,
-        units="pix",
-        radius=60,
-        fillColor=[-1, -1, -1],
-        lineColor=[-1, -1, -1]
-    )
-
 
     quitnow=False
     tic=time.time()
@@ -281,8 +272,8 @@ if Exp:
 
     # circle_gray = visual.Circle(pos= [-900,480],win=mywin,units="pix",radius=60,fillColor=[0, 0, 0],lineColor=[0, 0, 0]) 
     # circle = visual.Circle(pos= [-900,480],win=mywin,units="pix",radius=60,fillColor=[-1, -1, -1],lineColor=[-1, -1, -1]) 
-    rectangle_gray = visual.Rect(win=mywin,width=70,height=140,fillColor="black",lineColor="black",pos=[-1 * disp_size[0] / 2 + 50 / 2,disp_size[1] / 2 - 100 / 2],units="pix")
-    rectangle = visual.Rect(win=mywin,width=70,height=140,fillColor="black",lineColor="black",pos=[-1 * disp_size[0] / 2 + 50 / 2,disp_size[1] / 2 - 100 / 2],units="pix")
+    # rectangle_gray = visual.Rect(win=mywin,width=70*4,height=140*4,fillColor="black",lineColor="black",pos=[-1 * disp_size[0] / 2 + 50 / 2,disp_size[1] / 2 - 100 / 2],units="pix")
+    rectangle = visual.Rect(win=mywin,width=70*4,height=140*4,fillColor="black",lineColor="black",pos=[-1 * disp_size[0] / 2 + 50 / 2,disp_size[1] / 2 - 100 / 2],units="pix")
     
     fix = visual.TextStim(win=mywin,text="+",pos=[0,0], color='black',height=30)
     repeatNum = 1 # how many repetitions of each item

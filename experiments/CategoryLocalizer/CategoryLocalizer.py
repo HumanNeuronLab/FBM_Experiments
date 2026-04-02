@@ -81,7 +81,9 @@ AudioStimRoot = first_existing_path(AUDIO_STIM_CANDIDATES, kind="dir")
 # =========================
 while True:
     DlgInit = gui.Dlg(title="Category Localizer Initialisation")
+    DlgInit.addText("Subject Info", color="green")
     DlgInit.addField("Subject ID:")
+    DlgInit.addText("Experiment Settings", color="red")
     DlgInit.addField("Localizer modality: ", choices=["Visual", "Audio"])
     DlgInit.addField("Volume (0-1): ", 1)
     DlgInit.addField("PORT (COM): ", "COM3")
